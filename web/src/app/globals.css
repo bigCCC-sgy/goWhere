@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f6f3;
+  --foreground: #171717;
+  --card: #fffdf9;
+  --muted: #7f7a73;
+  --brand: #d94a4a;
+  --brand-soft: #fff0ef;
+  --warm: #e94b5a;
+  --cream: #fff7f2;
+  --route: #8f857a;
+  --warning: #b85b3d;
+  --glass: rgba(255, 253, 249, 0.72);
+  --hairline: rgba(45, 38, 31, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-warm: var(--warm);
+  --color-cream: var(--cream);
+  --color-route: var(--route);
+  --color-warning: var(--warning);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius-card: 20px;
+  --radius-panel: 18px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 10px 24px rgba(30, 22, 14, 0.06);
+  --shadow-floating: 0 14px 34px rgba(30, 22, 14, 0.1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid rgba(217, 74, 74, 0.32);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(217, 74, 74, 0.14);
+}
+
+textarea::placeholder,
+input::placeholder {
+  color: rgba(101, 115, 134, 0.7);
+}
+
+.map-grid {
+  background-image:
+    linear-gradient(rgba(143, 133, 122, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143, 133, 122, 0.07) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.soft-glass {
+  background: rgba(255, 253, 249, 0.86);
+  border: 1px solid rgba(45, 38, 31, 0.08);
+  box-shadow: 0 8px 22px rgba(30, 22, 14, 0.06);
+  backdrop-filter: blur(18px) saturate(1.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.12);
+}
+
+.liquid-glass {
+  background: var(--brand);
+  border: 1px solid rgba(217, 74, 74, 0.18);
+  box-shadow: 0 10px 22px rgba(217, 74, 74, 0.16);
+  color: #fff;
+}
+
+.panel-glass {
+  background: rgba(255, 253, 249, 0.82);
+  border: 1px solid rgba(45, 38, 31, 0.08);
+  box-shadow: 0 8px 22px rgba(30, 22, 14, 0.045);
+  backdrop-filter: blur(16px) saturate(1.06);
+  -webkit-backdrop-filter: blur(16px) saturate(1.06);
+}
+
+.primary-cta-glass {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.94), rgba(255, 249, 245, 0.88)),
+    linear-gradient(90deg, rgba(217, 74, 74, 0.05), rgba(217, 74, 74, 0.02));
+  border: 1px solid rgba(217, 74, 74, 0.12);
+  box-shadow: 0 8px 20px rgba(30, 22, 14, 0.055);
+}
+
+.primary-cta-glass::before {
+  content: "";
+  position: absolute;
+  inset: 8px auto 8px -22px;
+  width: 22%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 26% 50%, rgba(255, 90, 100, 0.24), rgba(255, 90, 100, 0.065) 46%, transparent 74%);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.primary-cta-glass::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 42%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.primary-cta-glass:disabled {
+  opacity: 0.56;
+}
+
+.dock-glass {
+  background: rgba(255, 253, 249, 0.88);
+  border: 1px solid rgba(45, 38, 31, 0.09);
+  box-shadow: 0 10px 26px rgba(30, 22, 14, 0.08);
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+.hairline-border {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(114, 129, 148, 0.08),
+    0 12px 34px rgba(12, 28, 48, 0.08);
+}
