@@ -1,0 +1,9 @@
+.m2/
+logs/
+backend/target/
+backend/.env
+backend/.env.local
+web/.next/
+web/node_modules/
+web/.env*
+*.log

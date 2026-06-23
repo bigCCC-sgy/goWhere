@@ -1,0 +1,26 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: gowhere-backend
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+gowhere:
+  amap:
+    web-service-key: ${AMAP_WEB_SERVICE_KEY:${AMAP_API_KEY:}}
+    radius-meters: ${AMAP_RADIUS_METERS:3000}
+  ai:
+    provider: ${AI_PROVIDER:qwen}
+    endpoint: ${AI_ENDPOINT:https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions}
+    api-key: ${AI_API_KEY:${VITE_QWEN_API_KEY:}}
+    model: ${AI_MODEL:qwen-plus}
+    timeout-ms: ${AI_TIMEOUT_MS:12000}
+  database:
+    url: ${MYSQL_URL:${DATABASE_URL:}}
+    username: ${MYSQL_USERNAME:${DB_USERNAME:}}
+    password: ${MYSQL_PASSWORD:${DB_PASSWORD:}}
+  recommendation:
+    mock-enabled: ${MOCK_PROVIDER_ENABLED:true}

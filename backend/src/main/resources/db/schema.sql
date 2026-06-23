@@ -1,0 +1,100 @@
+CREATE TABLE area_config (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(64) NOT NULL UNIQUE,
+  city VARCHAR(64) NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  district VARCHAR(64) NOT NULL,
+  longitude DECIMAL(10, 6) NOT NULL,
+  latitude DECIMAL(10, 6) NOT NULL,
+  description VARCHAR(512),
+  enabled TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE scene_config (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(64) NOT NULL UNIQUE,
+  name VARCHAR(64) NOT NULL,
+  subtitle VARCHAR(128),
+  icon VARCHAR(64),
+  poi_types JSON,
+  enabled TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE poi_cache (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  poi_id VARCHAR(128) NOT NULL UNIQUE,
+  source VARCHAR(32) NOT NULL,
+  source_poi_id VARCHAR(128) NOT NULL,
+  name VARCHAR(128) NOT NULL,
+  address VARCHAR(255),
+  city VARCHAR(64) NOT NULL,
+  district VARCHAR(64),
+  longitude DECIMAL(10, 6) NOT NULL,
+  latitude DECIMAL(10, 6) NOT NULL,
+  category VARCHAR(128),
+  distance_meters INT,
+  avg_price INT,
+  rating DECIMAL(3, 1),
+  opening_hours VARCHAR(128),
+  tags JSON,
+  raw_json JSON,
+  cached_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE recommendation_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  record_id VARCHAR(64) NOT NULL UNIQUE,
+  city VARCHAR(64) NOT NULL,
+  area_code VARCHAR(64) NOT NULL,
+  scene VARCHAR(64) NOT NULL,
+  query_text VARCHAR(255) NOT NULL,
+  budget INT,
+  companions VARCHAR(64),
+  mood_tags JSON,
+  avoid_tags JSON,
+  fuzzy_location VARCHAR(64),
+  provider VARCHAR(32) NOT NULL DEFAULT 'mock',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE recommendation_plan (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  record_id VARCHAR(64) NOT NULL,
+  plan_id VARCHAR(64) NOT NULL,
+  title VARCHAR(128) NOT NULL,
+  summary VARCHAR(512),
+  tags JSON,
+  budget_per_person INT,
+  total_distance_meters INT,
+  total_duration_minutes INT,
+  route_text VARCHAR(512),
+  risk_tips JSON,
+  stops_json JSON NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_plan_record_id (record_id)
+);
+
+CREATE TABLE feedback (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  record_id VARCHAR(64) NOT NULL,
+  plan_id VARCHAR(64),
+  type VARCHAR(32) NOT NULL,
+  content VARCHAR(512),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_feedback_record_id (record_id)
+);
+
+CREATE TABLE share_snapshot (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(64) NOT NULL UNIQUE,
+  record_id VARCHAR(64),
+  snapshot_json JSON NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NULL
+);
