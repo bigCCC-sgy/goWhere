@@ -1,264 +1,97 @@
 "use client";
 
-import { ArrowRight, Check, ChevronRight, LocateFixed, Loader2, MapPin, SlidersHorizontal } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, Check, ChevronDown, Compass, LocateFixed, Loader2, MapPin, Navigation, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import { generateRecommendations, getApiErrorMessage, resolveLocation } from "@/lib/api";
-import type { SceneCode, UserLocation } from "@/lib/types";
+import { useState } from "react";
+import { reverseLocation } from "@/lib/api";
+import { formatLocationLabel } from "@/lib/location-options";
+import { sceneOptions, type SceneOption } from "@/lib/preference-options";
+import { mockWeatherForCity } from "@/lib/weather";
 import { useJourneyStore } from "@/store/useJourneyStore";
 import { MobileShell } from "@/components/mobile-shell";
-import { Button } from "@/components/ui";
 
-type HomePreset = {
-  scene: SceneCode;
-  title: string;
-  note: string;
-  query: string;
-  moods: string[];
-  avoids: string[];
-  steps: string[];
-  tags: string[];
-  meta: string;
-};
-
-const presets: Record<SceneCode, HomePreset> = {
-  date: {
-    scene: "date",
-    title: "不尴尬的第一次约会",
-    note: "先坐下来，再自然走一段。",
-    query: "第一次约会，预算300，不想太吵，希望自然一点",
-    moods: ["安静", "浪漫"],
-    avoids: ["太吵"],
-    steps: ["安静咖啡", "氛围晚餐", "自然散步"],
-    tags: ["#安静咖啡", "#自然散步", "#不赶路"],
-    meta: "人均 ¥238 · 1.8km · 3h",
-  },
-  friends: {
-    scene: "friends",
-    title: "朋友小酌不踩雷",
-    note: "好聊天，有饭吃，也能轻松收尾。",
-    query: "和朋友小酌，想找好聊天的地方，别太贵",
-    moods: ["好聊天", "不排队"],
-    avoids: ["太贵"],
-    steps: ["轻晚餐", "小酒馆", "夜路散步"],
-    tags: ["#好聊天", "#小酌", "#收尾舒服"],
-    meta: "人均 ¥180 · 1.5km · 3h",
-  },
-  weekend: {
-    scene: "weekend",
-    title: "周末半日慢逛",
-    note: "一点内容，一点咖啡，一点城市感。",
-    query: "周末想看展再吃点东西，路线不要太赶",
-    moods: ["出片", "不赶"],
-    avoids: ["太累"],
-    steps: ["先看展", "咖啡休息", "晚餐收尾"],
-    tags: ["#看展", "#咖啡", "#慢慢逛"],
-    meta: "人均 ¥210 · 2.2km · 4h",
-  },
-  alone: {
-    scene: "alone",
-    title: "一个人的恢复路线",
-    note: "安静、有书、有风，别被人群打扰。",
-    query: "一个人想安静待一会儿，最好能读书或散步",
-    moods: ["安静", "自然"],
-    avoids: ["太吵"],
-    steps: ["书店", "公园", "咖啡"],
-    tags: ["#独处", "#书店", "#放空"],
-    meta: "人均 ¥80 · 1.4km · 2.5h",
-  },
-  rain: {
-    scene: "rain",
-    title: "雨天也不狼狈",
-    note: "尽量室内，少走路，留一点余地。",
-    query: "今天下雨，想找室内路线，别走太多路",
-    moods: ["室内", "省力"],
-    avoids: ["太远"],
-    steps: ["商场", "展演空间", "晚餐"],
-    tags: ["#室内", "#少走路", "#雨天"],
-    meta: "人均 ¥160 · 1.2km · 3.5h",
-  },
-  eat: {
-    scene: "eat",
-    title: "下班后好好吃饭",
-    note: "舒服、方便，最好不用等太久。",
-    query: "下班后想吃点舒服的，人均150左右，不想排很久",
-    moods: ["省心", "不排队"],
-    avoids: ["排队"],
-    steps: ["先吃饭", "咖啡甜点", "短程散步"],
-    tags: ["#下班饭", "#不排队", "#轻松"],
-    meta: "人均 ¥150 · 900m · 2h",
-  },
-};
-
-const moodActions = [
-  { label: "心情一般", query: "今天有点累，想找舒服、不费力、能慢慢恢复状态的路线", moodTags: ["安静", "省力"] },
-  { label: "想见人", query: "今晚想和人见面聊天，地点要自然、不太吵，方便收尾", moodTags: ["好聊天", "自然"] },
-  { label: "想出片", query: "想找有画面感、适合拍照但不要太赶的城市路线", moodTags: ["出片", "不赶"] },
-];
-
-const locationPresets = ["上海 静安寺", "北京 三里屯", "成都 太古里", "杭州 西湖", "广州 天河城", "深圳 海岸城"];
-
-const sceneOrder: SceneCode[] = ["date", "friends", "alone", "weekend", "rain", "eat"];
+const sceneCards = sceneOptions.filter((scene) => scene.home).slice(0, 8);
 
 export default function HomePage() {
   const router = useRouter();
   const store = useJourneyStore();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [selectedMood, setSelectedMood] = useState("");
-  const [selectedStep, setSelectedStep] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const locationLabel = formatLocationLabel(store.userLocation);
+  const weatherText = mockWeatherForCity(store.userLocation.city || store.city);
+  const [locating, setLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState("");
-  const [locationInput, setLocationInput] = useState("");
-  const [resolvingLocation, setResolvingLocation] = useState(false);
 
-  const preset = presets[store.scene] ?? presets.date;
-  const weatherText = `${store.userLocation.label} · 多云 26°C`;
-
-  function applyPreset(code: SceneCode) {
-    const next = presets[code];
-    setSelectedStep(0);
-    setError("");
-    store.setDraft({
-      scene: code,
-      query: next.query,
-      moodTags: next.moods,
-      avoidTags: next.avoids,
-    });
-  }
-
-  function applyMood(label: string, query: string, moodTags: string[]) {
-    setSelectedMood(label);
-    setError("");
-    store.setDraft({ query, moodTags });
-    textareaRef.current?.focus();
-  }
-
-  function selectRouteStep(step: string, index: number) {
-    setSelectedStep(index);
-    setError("");
-    store.setDraft({
-      query: `我想从${step}开始，${preset.query}`,
-      moodTags: preset.moods,
-      avoidTags: preset.avoids,
-    });
-  }
-
-  function applyUserLocation(location: UserLocation) {
-    store.setDraft({
-      userLocation: location,
-      city: location.city || location.label || "全国",
-      areaCode: location.source === "preset" ? "xinjiekou" : "manual",
-      location:
-        location.longitude && location.latitude
-          ? {
-              longitude: location.longitude,
-              latitude: location.latitude,
-              label: location.label,
-              city: location.city,
-              district: location.district,
-              address: location.address,
-              source: location.source,
-            }
-          : undefined,
-    });
-  }
-
-  async function submitManualLocation(keyword = locationInput) {
-    const nextKeyword = keyword.trim();
-    if (!nextKeyword) {
-      setLocationNotice("输入城市、商圈、地址或地标，例如“上海 静安寺”。");
-      return;
-    }
-
-    setResolvingLocation(true);
-    setLocationNotice("正在确认这个位置。");
-    try {
-      const resolved = await resolveLocation(nextKeyword);
-      applyUserLocation(resolved);
-      setLocationInput("");
-      setLocationNotice(`已切换到 ${resolved.label}，推荐会围绕这里生成。`);
-    } catch (caughtError) {
-      setLocationNotice(getApiErrorMessage(caughtError));
-    } finally {
-      setResolvingLocation(false);
-    }
-  }
-
-  function useLocation() {
-    setError("");
+  function locateNow() {
     if (!("geolocation" in navigator)) {
-      setLocationNotice("当前浏览器不支持定位，可以直接输入城市、商圈或地标。");
+      setLocationNotice("当前浏览器不支持定位，可以点位置文字手动选择。");
       return;
     }
 
-    setLocationNotice("正在请求定位。拒绝后也可以继续使用。");
+    setLocating(true);
+    setLocationNotice("正在获取当前位置。");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        store.setDraft({
-          city: "全国",
-          areaCode: "geolocation",
-          userLocation: {
-            label: "当前位置",
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
-            source: "geolocation",
-          },
-          location: {
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
-            label: "当前位置",
-            source: "geolocation",
-          },
-        });
-        setLocationNotice("已使用当前位置，本次路线会优先考虑距离。");
+      async (position) => {
+        const longitude = position.coords.longitude;
+        const latitude = position.coords.latitude;
+        try {
+          const resolved = await reverseLocation(longitude, latitude);
+          const nextLocation = { ...resolved, longitude, latitude, source: "geolocation" as const };
+          store.applyLocation(nextLocation);
+          setLocationNotice(
+            resolved.city || resolved.district || resolved.address
+              ? `已定位到 ${formatLocationLabel(nextLocation)}`
+              : "已获取当前位置，但暂时无法识别具体地址。",
+          );
+        } finally {
+          setLocating(false);
+        }
       },
       () => {
-        setLocationNotice("定位未开启，可以直接输入城市、商圈或地标继续使用。");
+        setLocationNotice("定位未开启，可以点位置文字手动选择。");
+        setLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 8000 },
+      { enableHighAccuracy: true, timeout: 9000 },
     );
   }
 
-  async function submitFromHome() {
-    if (!store.query.trim()) {
-      setError("先说说今晚的状态，比如“第一次约会，预算300，不想太吵”。");
-      textareaRef.current?.focus();
-      return;
+  function enterChoose(scene?: SceneOption) {
+    if (scene) {
+      store.setDraft({
+        scene: scene.value,
+        query: scene.query,
+        moodTags: scene.moodTags,
+        avoidTags: scene.avoidTags,
+      });
     }
-
-    setLoading(true);
-    setError("");
-    try {
-      const result = await generateRecommendations(store.toRequest());
-      store.setResult(result);
-      router.push("/results");
-    } catch (caughtError) {
-      setError(getApiErrorMessage(caughtError));
-    } finally {
-      setLoading(false);
-    }
+    router.push("/generate?mode=choose");
   }
 
   return (
     <MobileShell activeDock="home">
       <header className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-[18px] font-[700] tracking-normal text-foreground">此刻去哪</div>
-          <div className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-muted">
-            <MapPin size={13} strokeWidth={1.8} />
-            {weatherText}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="text-[18px] font-[700] tracking-normal text-foreground">此刻去哪</div>
+            <BrandGlyph />
           </div>
+          <Link
+            href="/location?returnTo=%2F"
+            className="ios-pressable mt-1 flex max-w-[285px] items-center gap-1.5 rounded-full py-1 pr-2 text-[13px] font-medium text-muted"
+            aria-label="选择位置"
+          >
+            <MapPin size={13} strokeWidth={1.8} />
+            <span className="truncate">{locationLabel} · {weatherText}</span>
+            <ChevronDown size={13} strokeWidth={1.8} />
+          </Link>
         </div>
         <button
           type="button"
-          onClick={useLocation}
-          aria-label="使用当前位置"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-white/72 text-foreground transition active:scale-[0.98]"
+          onClick={locateNow}
+          disabled={locating}
+          aria-label="快速定位"
+          className="ios-pressable ios-lift inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-white/72 text-foreground disabled:opacity-60"
         >
-          <LocateFixed size={18} strokeWidth={1.9} />
+          {locating ? <Loader2 className="animate-spin" size={18} /> : <LocateFixed size={18} strokeWidth={1.9} />}
         </button>
       </header>
 
@@ -268,236 +101,46 @@ export default function HomePage() {
         </div>
       )}
 
-      <section className="mt-3 rounded-[18px] border border-black/[0.06] bg-white/70 p-2.5">
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          <input
-            value={locationInput}
-            onChange={(event) => setLocationInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                void submitManualLocation();
-              }
-            }}
-            className="h-11 min-w-0 rounded-full border border-black/[0.06] bg-[#faf8f5] px-4 text-[14px] font-semibold text-foreground outline-none placeholder:text-muted/70"
-            placeholder="输入城市/商圈/地标，如 上海 静安寺"
-            aria-label="手动输入位置"
-          />
-          <button
-            type="button"
-            onClick={() => void submitManualLocation()}
-            disabled={resolvingLocation}
-            className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-foreground px-4 text-[13px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
-          >
-            {resolvingLocation ? <Loader2 className="animate-spin" size={16} /> : "使用"}
-          </button>
-        </div>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {locationPresets.map((keyword) => (
-            <button
-              key={keyword}
-              type="button"
-              disabled={resolvingLocation}
-              onClick={() => void submitManualLocation(keyword)}
-              className="inline-flex h-8 shrink-0 items-center rounded-full border border-black/[0.06] bg-white/72 px-3 text-[12px] font-semibold text-muted transition active:scale-[0.98] disabled:opacity-60"
-            >
-              {keyword.replace(" ", " · ")}
-            </button>
-          ))}
-        </div>
-      </section>
+      <AnimatedRouteHero />
 
-      <section
-        className="relative mt-5 h-[214px] overflow-hidden rounded-[20px] border border-black/[0.06] bg-[#2b241f] shadow-[0_14px_30px_rgba(30,22,14,0.12)]"
-        role="button"
-        tabIndex={0}
-        onClick={() => applyPreset(store.scene)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            applyPreset(store.scene);
-          }
-        }}
-        aria-label="套用今晚路线灵感"
-      >
-        <Image
-          src="/route-evening-card-v2.png"
-          alt="城市夜晚路线灵感"
-          fill
-          priority
-          sizes="(max-width: 430px) 100vw, 430px"
-          className="object-cover"
+      <section className="mt-4 grid gap-2">
+        <HomeActionButton
+          title="帮我选"
+          subtitle="点几下，今晚就有安排"
+          onClick={() => enterChoose()}
+          primary
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.54)_100%)]" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <p className="text-[12px] font-medium opacity-80">今晚灵感</p>
-          <h1 className="mt-1 max-w-[260px] text-[28px] font-[700] leading-[1.08] tracking-normal">
-            走一条刚刚好的路线
-          </h1>
-          <div className="mt-3 inline-flex rounded-full bg-white/18 px-3 py-1.5 text-[12px] font-semibold backdrop-blur">
-            {preset.title}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-[20px] border border-black/[0.07] bg-card p-3 shadow-[0_8px_22px_rgba(30,22,14,0.055)]">
-        <label htmlFor="home-query" className="px-1 text-[14px] font-semibold text-foreground">
-          说说今晚的状态
-        </label>
-        <textarea
-          id="home-query"
-          ref={textareaRef}
-          value={store.query}
-          onChange={(event) => {
-            setError("");
-            store.setDraft({ query: event.target.value });
-          }}
-          maxLength={200}
-          className="mt-2 min-h-[96px] w-full resize-none rounded-[16px] border border-black/[0.06] bg-[#faf8f5] px-3.5 py-3 text-[15px] font-medium leading-6 text-foreground outline-none placeholder:text-muted/70"
-          placeholder="第一次约会，预算300，不想太吵"
+        <HomeActionButton
+          title="我有想法"
+          subtitle="说一句，我帮你整理"
+          href="/generate?mode=idea"
         />
-        <div className="mt-3 grid grid-cols-[1fr_48px] gap-2">
-          <Button
-            type="button"
-            onClick={submitFromHome}
-            disabled={loading}
-            className="min-h-[50px] justify-between px-4 text-[15px]"
-          >
-            <span className="inline-flex items-center gap-2">
-              {loading && <Loader2 className="animate-spin" size={17} />}
-              {loading ? "正在生成路线" : "生成今晚路线"}
-            </span>
-            <ArrowRight size={17} />
-          </Button>
-          <Link
-            href="/generate"
-            aria-label="先调整条件"
-            className="inline-flex min-h-[50px] items-center justify-center rounded-full border border-black/[0.07] bg-white/76 text-foreground transition active:scale-[0.98]"
-          >
-            <SlidersHorizontal size={18} strokeWidth={1.9} />
-          </Link>
-        </div>
-        {error && <p className="mt-3 rounded-[14px] bg-brand-soft px-3 py-2 text-[12px] font-semibold leading-5 text-warning">{error}</p>}
-      </section>
-
-      <section className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {moodActions.map((mood) => {
-          const active = selectedMood === mood.label;
-          return (
-            <button
-              key={mood.label}
-              type="button"
-              aria-pressed={active}
-              onClick={() => applyMood(mood.label, mood.query, mood.moodTags)}
-                className={`inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-[13px] font-semibold ${
-                active ? "border-brand/30 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/62 text-foreground"
-              }`}
-            >
-              {active && <Check className="mr-1.5" size={13} />}
-              {mood.label}
-            </button>
-          );
-        })}
-      </section>
-
-      <section className="mt-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[18px] font-[700] text-foreground">今晚适合这样走</h2>
-          <button type="button" onClick={() => applyPreset(store.scene)} className="text-[13px] font-semibold text-brand">
-            套用
-          </button>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => applyPreset(store.scene)}
-          className="block w-full overflow-hidden rounded-[20px] border border-black/[0.07] bg-card text-left shadow-[0_8px_22px_rgba(30,22,14,0.055)] transition active:scale-[0.99]"
-        >
-          <div className="grid grid-cols-[112px_minmax(0,1fr)]">
-            <div className="relative min-h-[132px] bg-[#eadfd3]">
-              <Image src="/route-evening-card-v2.png" alt="" fill sizes="112px" className="object-cover" />
-            </div>
-            <div className="p-3.5">
-              <h3 className="line-clamp-2 text-[18px] font-[700] leading-6 text-foreground">{preset.title}</h3>
-              <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-muted">{preset.note}</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {preset.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="rounded-full bg-brand-soft px-2 py-1 text-[11px] font-semibold text-brand">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 text-[12px] font-semibold text-muted">{preset.meta}</p>
-            </div>
-          </div>
-        </button>
-
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {preset.steps.map((step, index) => (
-            <button
-              key={step}
-              type="button"
-              aria-pressed={selectedStep === index}
-              onClick={() => selectRouteStep(step, index)}
-              className={`inline-flex h-9 shrink-0 items-center rounded-full px-3 text-[12px] font-semibold ${
-                selectedStep === index ? "border-brand/24 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/62 text-muted"
-              }`}
-            >
-              {index + 1}. {step}
-            </button>
-          ))}
-        </div>
       </section>
 
       <section className="mt-6">
-        <SectionHeading title="场景" />
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {sceneOrder.map((code) => {
-            const item = presets[code];
-            const active = store.scene === code;
-            return (
-              <button
-                key={code}
-                type="button"
-                aria-pressed={active}
-                onClick={() => applyPreset(code)}
-                className={`relative w-[132px] shrink-0 rounded-[18px] border p-3 text-left transition active:scale-[0.98] ${
-                  active ? "border-brand/24 bg-white/82 text-foreground shadow-[0_8px_18px_rgba(217,74,74,0.08)]" : "border-black/[0.06] bg-white/58 text-muted"
-                }`}
-              >
-                {active && <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-brand shadow-[0_0_0_4px_rgba(217,74,74,0.1)]" />}
-                <span className="block text-[15px] font-[700]">{item.title.replace("的第一次", "")}</span>
-                <span className="mt-1 block line-clamp-2 text-[12px] leading-4">{item.note}</span>
-              </button>
-            );
-          })}
+        <div className="mb-3 flex items-end justify-between">
+          <h2 className="text-[18px] font-[700] text-foreground">先选一个今晚的方向</h2>
+          <span className="text-[12px] font-medium text-muted">可到下一步细调</span>
         </div>
-      </section>
-
-      <section className="mt-6">
-        <SectionHeading title="热门位置" />
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {locationPresets.map((keyword) => {
-            const [city, name] = keyword.split(" ");
-            const active =
-              store.userLocation.keyword === keyword ||
-              store.userLocation.label.includes(name ?? keyword);
+        <div className="grid grid-cols-2 gap-2">
+          {sceneCards.map((scene) => {
+            const active = store.scene === scene.value;
             return (
               <button
-                key={keyword}
+                key={scene.value}
                 type="button"
-                aria-pressed={active}
-                disabled={resolvingLocation}
-                onClick={() => void submitManualLocation(keyword)}
-                className={`min-h-[64px] rounded-[18px] border px-3 py-2.5 text-left transition active:scale-[0.98] ${
-                  active ? "border-brand/24 bg-white text-foreground" : "border-black/[0.06] bg-white/54 text-muted"
-                }`}
+                onClick={() => enterChoose(scene)}
+                className={`ios-pressable min-h-[88px] rounded-[18px] border p-3 text-left ${
+                  active
+                    ? "scene-selected-pulse border-brand/18 bg-[#fffdf9] text-foreground shadow-[0_8px_18px_rgba(68,48,30,0.045)]"
+                    : "border-black/[0.06] bg-white/58 text-muted"
+                  }`}
               >
-                <span className="flex items-center justify-between gap-2 text-[15px] font-[700]">
-                  {name ?? keyword}
+                <span className="flex items-center justify-between text-[16px] font-[700]">
+                  {scene.label}
                   {active && <Check size={15} className="text-brand" />}
                 </span>
-                <span className="mt-1 block truncate text-[12px]">{city}</span>
+                <span className="mt-1.5 block text-[12px] leading-5">{scene.prompt}</span>
               </button>
             );
           })}
@@ -513,11 +156,233 @@ export default function HomePage() {
   );
 }
 
-function SectionHeading({ title }: { title: string }) {
+function BrandGlyph() {
   return (
-    <div className="flex items-center justify-between">
-      <h2 className="text-[18px] font-[700] text-foreground">{title}</h2>
-      <ChevronRight size={16} className="text-muted" />
-    </div>
+    <span className="brand-glyph relative inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center overflow-hidden rounded-[12px]" aria-hidden="true">
+      <span className="absolute inset-[3px] rounded-[10px] bg-white/52" />
+      <Compass className="relative z-10 text-[#34414a]" size={20} strokeWidth={1.85} />
+      <Sparkles className="absolute right-[5px] top-[5px] z-10 text-[#d9745a]" size={9} strokeWidth={2.2} />
+      <span className="absolute bottom-[7px] left-[9px] h-1.5 w-1.5 rounded-full bg-[#c9b6a0]/70" />
+    </span>
+  );
+}
+
+function AnimatedRouteHero() {
+  const [pulseKey, setPulseKey] = useState(0);
+
+  function replayHero() {
+    setPulseKey((value) => value + 1);
+  }
+
+  if (pulseKey >= 0) {
+    return (
+      <button
+        type="button"
+        onClick={replayHero}
+        aria-label="播放今晚灵感生成动效"
+        className="animated-route-hero ios-pressable relative mt-5 block h-[238px] w-full overflow-hidden rounded-[26px] border border-white/80 text-left shadow-[0_20px_44px_rgba(68,48,30,0.12)]"
+      >
+        <div className="hero-glass-sweep pointer-events-none absolute inset-0" />
+        <div className="hero-aurora pointer-events-none absolute inset-0" />
+        <div className="hero-depth-glass pointer-events-none absolute left-4 right-4 top-4 h-[132px] rounded-[30px]" />
+        <div className="hero-city-silhouette pointer-events-none absolute inset-x-6 top-[92px] h-14" aria-hidden="true">
+          <span className="left-[4%] h-8 w-5" />
+          <span className="left-[14%] h-12 w-7" />
+          <span className="left-[27%] h-7 w-10" />
+          <span className="left-[44%] h-10 w-6" />
+          <span className="left-[58%] h-6 w-12" />
+          <span className="left-[76%] h-11 w-8" />
+          <span className="left-[91%] h-7 w-5" />
+        </div>
+
+        <div key={`halo-${pulseKey}`} className="hero-tap-halo pointer-events-none absolute left-1/2 top-[76px] h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand/10" />
+
+        <svg className="pointer-events-none absolute left-3 right-3 top-4 h-[146px] w-[calc(100%-24px)]" viewBox="0 0 340 150" fill="none" aria-hidden="true">
+          <path
+            d="M34 104C78 38 119 52 150 76C180 99 203 112 238 68C264 36 294 32 316 46"
+            stroke="rgba(121,94,75,0.12)"
+            strokeLinecap="round"
+            strokeWidth="18"
+          />
+          <path
+            className="hero-flow-line"
+            d="M34 104C78 38 119 52 150 76C180 99 203 112 238 68C264 36 294 32 316 46"
+            stroke="url(#heroFlow)"
+            strokeLinecap="round"
+            strokeWidth="2.2"
+          />
+          <path
+            key={`flow-${pulseKey}`}
+            className="hero-flow-spark"
+            d="M34 104C78 38 119 52 150 76C180 99 203 112 238 68C264 36 294 32 316 46"
+            stroke="rgba(255,247,235,0.96)"
+            strokeLinecap="round"
+            strokeWidth="4.2"
+          />
+          <defs>
+            <linearGradient id="heroFlow" x1="34" x2="316" y1="104" y2="46" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#d9bba2" stopOpacity="0.34" />
+              <stop offset="0.48" stopColor="#d94a4a" stopOpacity="0.34" />
+              <stop offset="1" stopColor="#8e9aa0" stopOpacity="0.26" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div key={`core-${pulseKey}`} className="hero-core hero-pulse-once absolute left-1/2 top-[42px] h-[94px] w-[94px] -translate-x-1/2 rounded-[32px]">
+          <div className="absolute inset-[10px] rounded-[26px] border border-white/70 bg-white/32 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl" />
+          <div className="hero-core-orb absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full" />
+          <span className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_18px_rgba(217,74,74,0.34)]" />
+        </div>
+
+        <div className="hero-floating-card hero-floating-card-a absolute left-5 top-[39px] h-[62px] w-[94px] rounded-[22px] border border-white/64 bg-white/26 backdrop-blur-xl">
+          <span className="absolute left-3 top-3 h-8 w-8 rounded-[12px] bg-[linear-gradient(135deg,rgba(217,74,74,0.16),rgba(255,255,255,0.48))]" />
+          <span className="absolute left-[50px] top-[18px] h-2 w-7 rounded-full bg-[#b9a895]/35" />
+          <span className="absolute left-[50px] top-[32px] h-1.5 w-9 rounded-full bg-white/58" />
+        </div>
+        <div className="hero-floating-card hero-floating-card-b absolute right-5 top-[56px] h-[58px] w-[88px] rounded-[20px] border border-white/58 bg-white/22 backdrop-blur-xl">
+          <span className="absolute left-3 top-3 h-7 w-7 rounded-[11px] bg-[linear-gradient(135deg,rgba(142,154,160,0.18),rgba(255,255,255,0.46))]" />
+          <span className="absolute left-[46px] top-[17px] h-2 w-7 rounded-full bg-[#9b8b7a]/28" />
+          <span className="absolute left-[46px] top-[31px] h-1.5 w-8 rounded-full bg-white/52" />
+        </div>
+
+        <span className="hero-star absolute right-[30px] top-[22px] text-[#d9745a]" aria-hidden="true">
+          <Sparkles size={16} strokeWidth={2.1} />
+        </span>
+        <span className="hero-star hero-star-soft absolute left-[46px] top-[106px] text-[#e0a483]" aria-hidden="true">
+          <Sparkles size={13} strokeWidth={2.1} />
+        </span>
+
+        <div className="absolute bottom-0 left-0 right-0 bg-[linear-gradient(180deg,transparent,rgba(255,252,247,0.64)_20%,rgba(255,252,247,0.9)_100%)] px-4 pb-4 pt-8 text-[#171717]">
+          <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7f7164]">
+            <Sparkles size={13} /> 今晚，从一个选择开始
+          </p>
+          <h1 className="mt-1 whitespace-nowrap text-[21px] font-[750] leading-[1.15] tracking-normal">
+            你不用想太多，我来把路线排好
+          </h1>
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={replayHero}
+      aria-label="播放路线生成动效"
+      className="animated-route-hero ios-pressable relative mt-5 block h-[224px] w-full overflow-hidden rounded-[24px] border border-white/80 bg-[#fbf7f1] text-left shadow-[0_18px_38px_rgba(68,48,30,0.11)]"
+    >
+      <div className="hero-glass-sweep pointer-events-none absolute inset-0" />
+      <div className="absolute left-[-60px] top-[-72px] h-48 w-48 rounded-full bg-[#fff4e8] blur-2xl" />
+      <div className="absolute bottom-[-68px] right-[-54px] h-52 w-52 rounded-full bg-[#f3e5d7] blur-2xl" />
+      <div className="absolute right-5 top-5 h-16 w-16 rounded-full border border-white/70 bg-white/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-md" />
+      <div key={`halo-${pulseKey}`} className="hero-tap-halo pointer-events-none absolute left-1/2 top-[88px] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand/10" />
+
+      <div className="absolute inset-x-5 top-5 h-[122px]">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 332 128" fill="none" aria-hidden="true">
+          <path
+            d="M18 92C66 28 117 19 164 63C207 103 261 84 315 25"
+            stroke="rgba(126,104,84,0.13)"
+            strokeWidth="15"
+            strokeLinecap="round"
+          />
+          <path
+            className="hero-route-dash"
+            d="M18 92C66 28 117 19 164 63C207 103 261 84 315 25"
+            stroke="rgba(116,99,83,0.48)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray="7 9"
+          />
+          <circle className="hero-light-dot" cx="18" cy="92" r="5.2" fill="#fffaf4" stroke="#d98a68" strokeWidth="2" />
+        </svg>
+
+        <div key={pulseKey} className="hero-compass hero-pulse-once absolute left-[119px] top-[26px] flex h-[80px] w-[80px] items-center justify-center rounded-[25px] border border-white/72 bg-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.86),0_14px_28px_rgba(91,68,48,0.11)] backdrop-blur-xl">
+          <Navigation className="text-[#47535a]" size={38} strokeWidth={1.62} />
+          <span className="absolute h-2.5 w-2.5 rounded-full bg-[#d9745a] shadow-[0_0_0_5px_rgba(217,116,90,0.13)]" />
+        </div>
+
+        <span className="hero-star absolute right-[22px] top-[10px] text-[#d9745a]">
+          <Sparkles size={17} strokeWidth={2.1} />
+        </span>
+        <span className="absolute left-[32px] top-[74px] h-3 w-3 rounded-full border border-white bg-[#d8c2aa] shadow-[0_0_0_7px_rgba(216,194,170,0.13)]" />
+        <span className="absolute right-[12px] top-[19px] h-3 w-3 rounded-full border border-white bg-[#e49a76] shadow-[0_0_0_7px_rgba(228,154,118,0.13)]" />
+
+        <div className="absolute left-1 top-[22px] h-[54px] w-[92px] rounded-[18px] border border-white/70 bg-white/28 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_12px_24px_rgba(91,68,48,0.08)] backdrop-blur-md">
+          <span className="absolute left-3 top-3 h-2 w-10 rounded-full bg-[#d8c2aa]/55" />
+          <span className="absolute left-3 top-7 h-1.5 w-14 rounded-full bg-white/64" />
+        </div>
+        <div className="absolute right-5 top-[66px] h-[48px] w-[84px] rounded-[16px] border border-white/64 bg-white/24 shadow-[inset_0_1px_0_rgba(255,255,255,0.68),0_10px_20px_rgba(91,68,48,0.07)] backdrop-blur-md">
+          <span className="absolute left-3 top-3 h-2 w-9 rounded-full bg-[#e49a76]/45" />
+          <span className="absolute left-3 top-7 h-1.5 w-12 rounded-full bg-white/62" />
+        </div>
+      </div>
+
+      <div className="absolute left-4 top-4 rounded-full border border-white/72 bg-white/46 px-3 py-1.5 text-[11px] font-semibold text-[#7d6957] shadow-[0_8px_18px_rgba(91,68,48,0.08)] backdrop-blur-md">
+        轻点重播路线流光
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 bg-[linear-gradient(180deg,transparent,rgba(255,252,247,0.64)_24%,rgba(255,252,247,0.84)_100%)] px-4 pb-4 pt-7 text-[#171717]">
+        <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7f7164]">
+          <Sparkles size={13} /> 今晚，从一个选择开始
+        </p>
+        <h1 className="mt-1 whitespace-nowrap text-[22px] font-[750] leading-[1.15] tracking-normal">
+          你不用想太多，我来把路线排好
+        </h1>
+      </div>
+    </button>
+  );
+}
+
+function HomeActionButton({
+  title,
+  subtitle,
+  href,
+  onClick,
+  primary = false,
+}: {
+  title: string;
+  subtitle: string;
+  href?: string;
+  onClick?: () => void;
+  primary?: boolean;
+}) {
+  const className = `ios-pressable ios-lift relative flex min-h-[62px] overflow-hidden items-center justify-between gap-3 rounded-[20px] border px-4 text-left ${
+    primary
+      ? "border-black/[0.065] bg-[linear-gradient(180deg,rgba(255,253,249,0.94),rgba(255,248,241,0.86))] text-foreground shadow-[0_12px_24px_rgba(68,48,30,0.09)]"
+      : "border-black/[0.06] bg-white/72 text-foreground shadow-[0_8px_18px_rgba(30,22,14,0.045)]"
+  }`;
+  const content = (
+    <>
+      <span className="min-w-0">
+        <span className="flex items-center gap-1.5 truncate text-[16px] font-[750]">
+          {primary && <Sparkles size={14} className="shrink-0 text-[#d9745a]" strokeWidth={2} />}
+          <span className="truncate">{title}</span>
+        </span>
+        <span className="mt-1 block truncate text-[12px] font-semibold text-muted">
+          {subtitle}
+        </span>
+      </span>
+      <span
+        className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+          primary ? "bg-brand-soft text-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.84)]" : "bg-white text-[#5f574f] border border-black/[0.06]"
+        }`}
+      >
+        <ArrowRight size={17} strokeWidth={2.2} />
+      </span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {content}
+    </button>
   );
 }

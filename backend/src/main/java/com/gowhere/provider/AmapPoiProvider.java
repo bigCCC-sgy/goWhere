@@ -249,6 +249,10 @@ public class AmapPoiProvider {
     int avgPrice = (int) Math.round(parseDouble(bizExt.path("cost").asText("0"), 0));
     double rating = parseDouble(bizExt.path("rating").asText("0"), 0);
     int distance = node.path("distance").asInt((int) Math.round(distanceMeters(center, longitude, latitude)));
+    String phone = nonBlank(text(node, "tel"), text(node, "phone"));
+    String businessArea = text(node, "business_area");
+    String detailUrl = text(node, "website");
+    String amapUri = "https://uri.amap.com/search?keyword=" + encode(name);
 
     List<String> tags = tagsFor(request, category, fullType, avgPrice);
     return Optional.of(
@@ -266,8 +270,13 @@ public class AmapPoiProvider {
             Math.max(0, distance),
             Math.max(0, avgPrice),
             rating <= 0 ? null : rating,
-            nonBlank(text(node, "business_area"), "以地图与商家信息为准"),
-            tags));
+            nonBlank(businessArea, "以地图与商家信息为准"),
+            tags,
+            photoUrls(node),
+            phone,
+            businessArea,
+            detailUrl,
+            amapUri));
   }
 
   private Coordinate centerOf(GenerateRecommendationRequest request) {
@@ -370,11 +379,25 @@ public class AmapPoiProvider {
 
   private List<String> sceneKeywords(String scene) {
     return switch (scene) {
+      case "eat" -> List.of("餐厅", "火锅", "地方菜", "小吃", "商场");
       case "date" -> List.of("餐厅", "咖啡", "甜品", "公园");
       case "weekend" -> List.of("展览", "书店", "街区", "公园", "商场");
       case "alone" -> List.of("书店", "咖啡", "图书馆", "公园");
       case "rain" -> List.of("商场", "书店", "展览", "咖啡");
       case "friends" -> List.of("餐厅", "酒吧", "小吃", "商场");
+      case "coffee" -> List.of("咖啡", "甜品", "茶饮", "面包店");
+      case "culture" -> List.of("展览", "美术馆", "博物馆", "文化空间");
+      case "show" -> List.of("电影院", "剧院", "演出", "livehouse");
+      case "walk" -> List.of("公园", "街区", "景点", "步行街");
+      case "nightlife" -> List.of("酒吧", "小酒馆", "夜市", "livehouse");
+      case "family" -> List.of("亲子", "公园", "商场", "儿童乐园");
+      case "pet" -> List.of("宠物友好", "公园", "宠物店", "咖啡");
+      case "work" -> List.of("图书馆", "咖啡", "自习室", "书店");
+      case "sport" -> List.of("健身", "运动", "公园", "瑜伽");
+      case "shopping" -> List.of("商场", "购物中心", "步行街", "餐厅");
+      case "photo" -> List.of("景点", "街区", "展览", "公园");
+      case "halfday" -> List.of("景点", "街区", "咖啡", "展览");
+      case "lodging" -> List.of("酒店", "住宿", "宾馆", "民宿", "快捷酒店", "星级酒店");
       default -> List.of("餐厅", "咖啡", "小吃", "商场");
     };
   }
@@ -409,6 +432,12 @@ public class AmapPoiProvider {
     }
     if ("date".equals(request.scene()) && poi.tags().contains("适合初见")) {
       score -= 350;
+    }
+    if ("coffee".equals(request.scene()) && (isCafe(poi) || isDessert(poi))) {
+      score -= 450;
+    }
+    if ("work".equals(request.scene()) && (poi.tags().contains("安静") || poi.category().contains("图书馆"))) {
+      score -= 450;
     }
     return score;
   }
@@ -587,6 +616,23 @@ public class AmapPoiProvider {
   private String text(JsonNode node, String field) {
     JsonNode value = node.path(field);
     return value.isMissingNode() || value.isNull() ? "" : value.asText("");
+  }
+
+  private List<String> photoUrls(JsonNode node) {
+    List<String> urls = new ArrayList<>();
+    JsonNode photos = node.path("photos");
+    if (photos.isArray()) {
+      for (JsonNode photo : photos) {
+        String url = text(photo, "url");
+        if (!url.isBlank()) {
+          urls.add(url);
+        }
+        if (urls.size() >= 3) {
+          break;
+        }
+      }
+    }
+    return urls;
   }
 
   private String nonBlank(String value, String fallbackValue) {

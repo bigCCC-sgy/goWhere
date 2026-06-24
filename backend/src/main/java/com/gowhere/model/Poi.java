@@ -17,4 +17,9 @@ public record Poi(
     int avgPrice,
     Double rating,
     String openingHours,
-    List<String> tags) {}
+    List<String> tags,
+    List<String> photoUrls,
+    String phone,
+    String businessArea,
+    String detailUrl,
+    String amapUri) {}

@@ -38,15 +38,15 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" }) {
   const variants = {
     primary:
-      "bg-brand text-white shadow-[0_10px_22px_rgba(217,74,74,0.16)] hover:bg-warm active:scale-[0.99]",
+      "bg-brand text-white shadow-[0_10px_22px_rgba(217,74,74,0.16)] hover:bg-warm",
     secondary:
-      "border border-black/[0.07] bg-white/76 text-foreground shadow-[0_6px_16px_rgba(30,22,14,0.045)] hover:bg-white active:scale-[0.99]",
-    ghost: "bg-transparent text-muted hover:bg-black/[0.04] hover:text-foreground active:scale-[0.99]",
+      "border border-black/[0.07] bg-white/76 text-foreground shadow-[0_6px_16px_rgba(30,22,14,0.045)] hover:bg-white",
+    ghost: "bg-transparent text-muted hover:bg-black/[0.04] hover:text-foreground",
   };
 
   return (
     <button
-      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-55 ${variants[variant]} ${className}`}
+      className={`ios-pressable inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold disabled:cursor-not-allowed disabled:opacity-55 ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

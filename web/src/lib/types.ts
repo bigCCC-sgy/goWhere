@@ -1,4 +1,23 @@
-export type SceneCode = "eat" | "date" | "weekend" | "alone" | "rain" | "friends";
+export type SceneCode =
+  | "eat"
+  | "date"
+  | "weekend"
+  | "alone"
+  | "rain"
+  | "friends"
+  | "coffee"
+  | "culture"
+  | "show"
+  | "walk"
+  | "nightlife"
+  | "family"
+  | "pet"
+  | "work"
+  | "sport"
+  | "shopping"
+  | "photo"
+  | "halfday"
+  | "lodging";
 
 export type Area = {
   code: string;
@@ -66,6 +85,11 @@ export type Poi = {
   rating?: number;
   openingHours?: string;
   tags: string[];
+  photoUrls?: string[];
+  phone?: string;
+  businessArea?: string;
+  detailUrl?: string;
+  amapUri?: string;
 };
 
 export type PlanStop = {

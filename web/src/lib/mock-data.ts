@@ -46,6 +46,19 @@ export const scenes: Scene[] = [
   { code: "alone", name: "一个人去哪", subtitle: "安静放空", icon: "BookOpen", poiTypes: ["书店", "咖啡", "公园"] },
   { code: "rain", name: "雨天去哪", subtitle: "室内也好逛", icon: "CloudRain", poiTypes: ["商场", "书店", "展览"] },
   { code: "friends", name: "朋友聚会", subtitle: "好聊、好吃、好收尾", icon: "Users", poiTypes: ["餐厅", "酒馆", "街区"] },
+  { code: "coffee", name: "咖啡甜品", subtitle: "坐一会儿，聊聊天", icon: "Coffee", poiTypes: ["咖啡", "甜品"] },
+  { code: "culture", name: "看展", subtitle: "有内容，也好拍", icon: "Landmark", poiTypes: ["展览", "美术馆", "博物馆"] },
+  { code: "show", name: "电影演出", subtitle: "看完还能接着走", icon: "Ticket", poiTypes: ["电影院", "剧院", "演出"] },
+  { code: "walk", name: "城市漫步", subtitle: "慢慢走一段", icon: "Footprints", poiTypes: ["街区", "公园", "景点"] },
+  { code: "nightlife", name: "夜生活", subtitle: "小酌、夜游、收尾", icon: "Moon", poiTypes: ["酒吧", "夜市", "街区"] },
+  { code: "family", name: "亲子", subtitle: "轻松、安全、少折腾", icon: "Baby", poiTypes: ["亲子", "公园", "商场"] },
+  { code: "pet", name: "宠物友好", subtitle: "带宠也自在", icon: "PawPrint", poiTypes: ["公园", "宠物友好", "咖啡"] },
+  { code: "work", name: "学习办公", subtitle: "安静、插座、久坐", icon: "Laptop", poiTypes: ["图书馆", "咖啡", "自习室"] },
+  { code: "sport", name: "运动放松", subtitle: "轻运动，恢复状态", icon: "Dumbbell", poiTypes: ["健身", "运动", "公园"] },
+  { code: "shopping", name: "购物逛街", subtitle: "买点东西，也吃点", icon: "ShoppingBag", poiTypes: ["商场", "购物", "餐厅"] },
+  { code: "photo", name: "拍照出片", subtitle: "有画面感，别太挤", icon: "Camera", poiTypes: ["景点", "街区", "展览"] },
+  { code: "halfday", name: "短途半日", subtitle: "轻计划，不赶路", icon: "Route", poiTypes: ["景点", "街区", "咖啡"] },
+  { code: "lodging", name: "住宿/住一晚", subtitle: "附近过夜，安心休息", icon: "Bed", poiTypes: ["酒店", "民宿", "宾馆"] },
 ];
 
 export const mockRecommendation: RecommendationResponse = {

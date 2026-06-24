@@ -1,0 +1,13 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M128 28C82 28 45 64 45 110C45 174 128 226 128 226C128 226 211 174 211 110C211 64 174 28 128 28Z" fill="url(#pin)"/>
+  <path d="M128 47C92 47 63 75 63 111C63 124 67 137 74 149" stroke="white" stroke-width="9" stroke-linecap="round" opacity=".28"/>
+  <circle cx="128" cy="109" r="33" fill="#FFF8EF"/>
+  <circle cx="128" cy="109" r="15" fill="#D94A4A"/>
+  <defs>
+    <linearGradient id="pin" x1="80" y1="42" x2="178" y2="222" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F36A70"/>
+      <stop offset=".5" stop-color="#D94A4A"/>
+      <stop offset="1" stop-color="#B93235"/>
+    </linearGradient>
+  </defs>
+</svg>

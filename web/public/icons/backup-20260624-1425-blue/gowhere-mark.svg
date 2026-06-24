@@ -1,0 +1,31 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M48 162C74 105 133 78 185 91C207 97 218 109 216 125C214 147 188 164 151 172C114 179 76 175 59 160C45 148 51 133 72 122" stroke="url(#orbit)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M88 194L116 124C118 119 124 118 128 120L173 150C178 153 177 160 172 163L144 178L116 207C111 213 103 208 106 201L114 176L88 194Z" fill="url(#needle)" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M131 126L162 147L140 159L120 179L131 126Z" fill="#16304D" opacity=".72"/>
+  <circle cx="129" cy="151" r="21" fill="#0A84FF" opacity=".18"/>
+  <circle cx="129" cy="151" r="14" fill="url(#center)"/>
+  <circle cx="76" cy="180" r="8" fill="#F8FAFC" stroke="white" stroke-width="2"/>
+  <path d="M188 62C191 76 198 83 212 86C198 89 191 96 188 110C185 96 178 89 164 86C178 83 185 76 188 62Z" fill="url(#spark)" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="orbit" x1="44" y1="120" x2="217" y2="154" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDFEFF"/>
+      <stop offset=".48" stop-color="#B9E2FF"/>
+      <stop offset="1" stop-color="#4ABEFF"/>
+    </linearGradient>
+    <linearGradient id="needle" x1="105" y1="121" x2="158" y2="201" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".58" stop-color="#F5FBFF"/>
+      <stop offset="1" stop-color="#E5F2FB"/>
+    </linearGradient>
+    <radialGradient id="center" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(123 145) rotate(58) scale(24)">
+      <stop stop-color="#7BD0FF"/>
+      <stop offset=".55" stop-color="#0A84FF"/>
+      <stop offset="1" stop-color="#0749B6"/>
+    </radialGradient>
+    <linearGradient id="spark" x1="176" y1="72" x2="201" y2="101" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A72"/>
+      <stop offset=".55" stop-color="#FF5A64"/>
+      <stop offset="1" stop-color="#FFB092"/>
+    </linearGradient>
+  </defs>
+</svg>

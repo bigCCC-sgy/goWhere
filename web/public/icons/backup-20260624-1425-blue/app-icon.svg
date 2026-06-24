@@ -1,0 +1,57 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="226" fill="url(#base)"/>
+  <rect x="38" y="38" width="948" height="948" rx="204" stroke="url(#rim)" stroke-width="6"/>
+  <path d="M241 642C334 420 566 308 770 361C846 381 886 430 880 494C872 586 761 659 607 690C454 722 292 700 225 639C162 581 199 503 299 452" stroke="url(#orbitOuter)" stroke-width="46" stroke-linecap="round"/>
+  <path d="M246 637C343 432 566 329 758 379C821 396 854 434 849 485C842 561 742 625 600 654C462 683 314 666 253 615C210 579 228 531 303 490" stroke="white" stroke-width="20" stroke-linecap="round" opacity=".78"/>
+  <path d="M354 771L466 496C473 478 495 471 512 482L688 597C707 609 705 637 685 648L571 708L461 826C443 845 412 827 421 803L456 706L354 771Z" fill="url(#needle)" stroke="white" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M526 503L652 586L562 632L482 714L526 503Z" fill="#16304D" opacity=".68"/>
+  <circle cx="515" cy="602" r="79" fill="url(#glow)" opacity=".5"/>
+  <circle cx="515" cy="602" r="55" fill="url(#center)"/>
+  <circle cx="515" cy="602" r="55" stroke="url(#centerRim)" stroke-width="4"/>
+  <circle cx="306" cy="719" r="31" fill="url(#whiteNode)" stroke="white" stroke-width="6"/>
+  <path d="M747 258C760 313 785 338 840 351C785 364 760 389 747 444C734 389 709 364 654 351C709 338 734 313 747 258Z" fill="url(#spark)" stroke="white" stroke-width="7" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="base" x1="142" y1="78" x2="890" y2="946" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEFCF8"/>
+      <stop offset=".46" stop-color="#F5F9FC"/>
+      <stop offset="1" stop-color="#DCECF8"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="128" y1="50" x2="888" y2="952" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity=".96"/>
+      <stop offset=".54" stop-color="#FFFFFF" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#6D8EAA" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="orbitOuter" x1="211" y1="487" x2="882" y2="610" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDFEFF" stop-opacity=".9"/>
+      <stop offset=".45" stop-color="#CFE8FF" stop-opacity=".66"/>
+      <stop offset="1" stop-color="#61C7FF" stop-opacity=".76"/>
+    </linearGradient>
+    <linearGradient id="needle" x1="421" y1="486" x2="633" y2="803" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".58" stop-color="#F5FBFF"/>
+      <stop offset="1" stop-color="#E5F2FB"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(515 602) rotate(90) scale(108)">
+      <stop stop-color="#0A84FF"/>
+      <stop offset="1" stop-color="#0A84FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="center" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(494 579) rotate(62) scale(86)">
+      <stop stop-color="#79C7FF"/>
+      <stop offset=".52" stop-color="#0A84FF"/>
+      <stop offset="1" stop-color="#0749B6"/>
+    </radialGradient>
+    <linearGradient id="centerRim" x1="474" y1="553" x2="555" y2="654" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#73D8FF" stop-opacity=".54"/>
+    </linearGradient>
+    <linearGradient id="whiteNode" x1="282" y1="694" x2="333" y2="750" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EDF4FA"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="700" y1="297" x2="802" y2="407" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A72"/>
+      <stop offset=".55" stop-color="#FF5A64"/>
+      <stop offset="1" stop-color="#FFB092"/>
+    </linearGradient>
+  </defs>
+</svg>

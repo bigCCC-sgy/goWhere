@@ -130,11 +130,13 @@ input::placeholder {
 }
 
 .dock-glass {
-  background: rgba(255, 253, 249, 0.88);
-  border: 1px solid rgba(45, 38, 31, 0.09);
-  box-shadow: 0 10px 26px rgba(30, 22, 14, 0.08);
-  backdrop-filter: blur(20px) saturate(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+  background: rgba(255, 253, 249, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 10px 24px rgba(30, 22, 14, 0.075);
+  backdrop-filter: blur(24px) saturate(1.18);
+  -webkit-backdrop-filter: blur(24px) saturate(1.18);
 }
 
 .hairline-border {
@@ -142,4 +144,495 @@ input::placeholder {
     inset 0 0 0 1px rgba(255, 255, 255, 0.72),
     inset 0 -1px 0 rgba(114, 129, 148, 0.08),
     0 12px 34px rgba(12, 28, 48, 0.08);
+}
+
+.ios-pressable {
+  transition-property: transform, background-color, box-shadow, border-color, color, opacity, filter;
+  transition-duration: 210ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateZ(0);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-pressable:hover {
+  filter: brightness(1.012);
+}
+
+.ios-pressable:active {
+  transform: scale(0.972);
+  filter: brightness(0.985);
+}
+
+.ios-lift {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    0 8px 20px rgba(30, 22, 14, 0.065);
+}
+
+.ios-tab {
+  transition:
+    transform 210ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 210ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 210ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 210ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-tab:active {
+  transform: scale(0.96);
+}
+
+.ios-tab-active {
+  background: rgba(217, 74, 74, 0.065);
+  color: #3d332b;
+}
+
+.brand-glyph {
+  background:
+    radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.96), transparent 22%),
+    radial-gradient(circle at 30% 84%, rgba(217, 190, 158, 0.2), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(252, 244, 235, 0.8) 48%, rgba(231, 219, 204, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 0 rgba(91, 68, 48, 0.08),
+    0 8px 18px rgba(91, 68, 48, 0.11);
+}
+
+.brand-glyph::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 46%);
+  pointer-events: none;
+}
+
+.animated-route-hero {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.96), transparent 27%),
+    radial-gradient(circle at 82% 18%, rgba(235, 243, 244, 0.62), transparent 31%),
+    radial-gradient(circle at 32% 76%, rgba(255, 224, 207, 0.68), transparent 34%),
+    linear-gradient(145deg, #fffdf8 0%, #fbf2e8 48%, #f6ece4 100%);
+  isolation: isolate;
+}
+
+.animated-route-hero::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), transparent 42%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 50%, rgba(255, 255, 255, 0.18));
+  pointer-events: none;
+}
+
+.hero-glass-sweep {
+  background: linear-gradient(105deg, transparent 10%, rgba(255, 255, 255, 0.48) 36%, transparent 60%);
+  animation: heroGlassSweep 8.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  opacity: 0.54;
+}
+
+.hero-aurora {
+  background:
+    radial-gradient(circle at 52% 34%, rgba(255, 255, 255, 0.68), transparent 20%),
+    radial-gradient(circle at 58% 34%, rgba(217, 74, 74, 0.13), transparent 20%),
+    radial-gradient(circle at 76% 22%, rgba(162, 175, 177, 0.16), transparent 24%),
+    radial-gradient(circle at 20% 44%, rgba(241, 198, 158, 0.18), transparent 24%);
+  animation: heroAuroraDrift 11s ease-in-out infinite;
+}
+
+.hero-depth-glass {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.42), transparent 56%);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(91, 68, 48, 0.045),
+    0 18px 42px rgba(91, 68, 48, 0.06);
+  backdrop-filter: blur(15px) saturate(1.12);
+  -webkit-backdrop-filter: blur(15px) saturate(1.12);
+}
+
+.hero-city-silhouette span {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(171, 154, 136, 0.12)),
+    linear-gradient(90deg, transparent 28%, rgba(255, 255, 255, 0.42) 30%, transparent 34%, transparent 62%, rgba(255, 255, 255, 0.32) 64%, transparent 68%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  opacity: 0.58;
+}
+
+.hero-flow-line {
+  filter: drop-shadow(0 0 7px rgba(217, 118, 88, 0.2));
+}
+
+.hero-flow-spark {
+  stroke-dasharray: 32 260;
+  stroke-dashoffset: 220;
+  opacity: 0;
+  filter:
+    drop-shadow(0 0 9px rgba(217, 74, 74, 0.34))
+    drop-shadow(0 0 18px rgba(255, 238, 220, 0.7));
+  animation: heroFlowSpark 4.8s cubic-bezier(0.32, 0.72, 0.22, 1) infinite;
+}
+
+.hero-core {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 246, 235, 0.74), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    inset 0 -1px 0 rgba(91, 68, 48, 0.06),
+    0 18px 40px rgba(91, 68, 48, 0.12);
+  backdrop-filter: blur(18px) saturate(1.18);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.hero-core::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(217, 74, 74, 0.13), transparent 64%);
+  animation: heroCoreBreath 4.6s ease-in-out infinite;
+}
+
+.hero-core-orb {
+  background:
+    radial-gradient(circle at 35% 25%, #fff, transparent 30%),
+    radial-gradient(circle, rgba(217, 74, 74, 0.58), rgba(224, 164, 131, 0.32) 54%, rgba(255, 255, 255, 0.12) 72%);
+  box-shadow:
+    0 0 0 8px rgba(217, 74, 74, 0.08),
+    0 0 26px rgba(217, 74, 74, 0.28);
+}
+
+.hero-core.hero-pulse-once {
+  animation:
+    heroCoreFloat 7s ease-in-out infinite,
+    heroCoreTap 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-floating-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 14px 28px rgba(91, 68, 48, 0.075);
+}
+
+.hero-floating-card-a {
+  animation: heroCardFloatA 7.4s ease-in-out infinite;
+}
+
+.hero-floating-card-b {
+  animation: heroCardFloatB 8.2s ease-in-out infinite;
+}
+
+.hero-star-soft {
+  animation-delay: 900ms;
+}
+
+.hero-route-dash {
+  animation: heroRouteDash 11s linear infinite;
+}
+
+.hero-light-dot {
+  offset-path: path("M18 92C66 28 117 19 164 63C207 103 261 84 315 25");
+  animation: heroDotTravel 7.4s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  filter: drop-shadow(0 0 9px rgba(217, 138, 104, 0.44));
+}
+
+.hero-compass {
+  animation: heroCompassDrift 8s ease-in-out infinite;
+}
+
+.hero-star {
+  animation: heroStarBlink 2.8s ease-in-out infinite;
+}
+
+.hero-pulse-once {
+  animation:
+    heroCompassDrift 8s ease-in-out infinite,
+    heroPulseOnce 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-tap-halo {
+  animation: heroTapHalo 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.route-node-pulse {
+  animation: routeNodePulse 2.7s ease-in-out infinite;
+}
+
+.route-float-chip {
+  animation: routeFloat 5.2s ease-in-out infinite;
+}
+
+.route-scan {
+  animation: routeScan 3.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.scene-selected-pulse {
+  animation: sceneSelectedPulse 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.favorite-route-expand {
+  animation: favoriteRouteExpand 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes routeNodePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.78;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+@keyframes routeFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes routeScan {
+  0% {
+    transform: translateX(-115%);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateX(115%);
+    opacity: 0;
+  }
+}
+
+@keyframes sceneSelectedPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 74, 74, 0.16);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(217, 74, 74, 0);
+  }
+}
+
+@keyframes heroGlassSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  45%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes heroAuroraDrift {
+  0%, 100% {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+    opacity: 0.82;
+  }
+  50% {
+    transform: translate3d(1.5%, 1%, 0) scale(1.025);
+    opacity: 1;
+  }
+}
+
+@keyframes heroFlowSpark {
+  0% {
+    stroke-dashoffset: 245;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  62% {
+    opacity: 0.72;
+  }
+  100% {
+    stroke-dashoffset: -78;
+    opacity: 0;
+  }
+}
+
+@keyframes heroCoreBreath {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.42;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.76;
+  }
+}
+
+@keyframes heroCoreFloat {
+  0%, 100% {
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes heroCoreTap {
+  0% {
+    filter: brightness(1.03);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      inset 0 -1px 0 rgba(91, 68, 48, 0.06),
+      0 18px 40px rgba(91, 68, 48, 0.12),
+      0 0 0 0 rgba(217, 74, 74, 0.16);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      inset 0 -1px 0 rgba(91, 68, 48, 0.06),
+      0 18px 40px rgba(91, 68, 48, 0.12),
+      0 0 0 16px rgba(217, 74, 74, 0);
+  }
+}
+
+@keyframes heroCardFloatA {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate3d(5px, -7px, 0) rotate(1deg);
+  }
+}
+
+@keyframes heroCardFloatB {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(2deg);
+  }
+  50% {
+    transform: translate3d(-5px, -6px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes heroRouteDash {
+  to {
+    stroke-dashoffset: -64;
+  }
+}
+
+@keyframes heroDotTravel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes heroCompassDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-4deg);
+  }
+  50% {
+    transform: translate3d(4px, -5px, 0) rotate(5deg);
+  }
+}
+
+@keyframes heroStarBlink {
+  0%, 100% {
+    transform: scale(0.86) rotate(0deg);
+    opacity: 0.58;
+  }
+  50% {
+    transform: scale(1.12) rotate(10deg);
+    opacity: 1;
+  }
+}
+
+@keyframes heroPulseOnce {
+  0% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 14px 28px rgba(91, 68, 48, 0.11),
+      0 0 0 0 rgba(217, 116, 90, 0.18);
+  }
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 14px 28px rgba(91, 68, 48, 0.11),
+      0 0 0 14px rgba(217, 116, 90, 0);
+  }
+}
+
+@keyframes heroTapHalo {
+  0% {
+    transform: translate(-50%, -50%) scale(0.68);
+    opacity: 0.42;
+    box-shadow: 0 0 0 0 rgba(217, 116, 90, 0.16);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.28);
+    opacity: 0;
+    box-shadow: 0 0 0 18px rgba(217, 116, 90, 0);
+  }
+}
+
+@keyframes favoriteRouteExpand {
+  0% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-pressable,
+  .ios-tab,
+  .hero-glass-sweep,
+  .hero-aurora,
+  .hero-flow-spark,
+  .hero-core::before,
+  .hero-core,
+  .hero-floating-card,
+  .hero-route-dash,
+  .hero-light-dot,
+  .hero-compass,
+  .hero-pulse-once,
+  .hero-tap-halo,
+  .hero-star,
+  .route-node-pulse,
+  .route-float-chip,
+  .route-scan,
+  .scene-selected-pulse,
+  .favorite-route-expand {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+
+  .ios-pressable:active,
+  .ios-tab:active {
+    transform: none;
+  }
 }

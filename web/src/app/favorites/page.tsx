@@ -2,7 +2,7 @@
 
 import { Bookmark, Compass, Heart, MapPin, Route, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { getFavoritePlans, removeFavoritePlan } from "@/lib/favorites";
 import type { RecommendationPlan, RecommendationResponse } from "@/lib/types";
 import { Button, Pill } from "@/components/ui";
@@ -15,24 +15,37 @@ function formatDistance(meters: number) {
 
 export default function FavoritesPage() {
   const [plans, setPlans] = useState<RecommendationPlan[]>(() => getFavoritePlans());
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(() => plans[0]?.id ?? null);
-  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
-
-  const result: RecommendationResponse = useMemo(
-    () => ({
-      recordId: "local-favorites",
-      requestSummary: "本地收藏的路线",
-      aiNotice: "这些路线保存在当前浏览器里，不需要登录。地点信息仍建议出发前以地图和现场为准。",
-      plans: selectedPlan ? [selectedPlan] : [],
-    }),
-    [selectedPlan],
-  );
+  const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
   function removePlan(planId: string) {
     removeFavoritePlan(planId);
     const next = plans.filter((plan) => plan.id !== planId);
     setPlans(next);
-    setSelectedPlanId((selected) => (selected === planId ? (next[0]?.id ?? null) : selected));
+    setExpandedPlanId((expanded) => (expanded === planId ? null : expanded));
+  }
+
+  function togglePlan(planId: string) {
+    setExpandedPlanId((current) => {
+      const next = current === planId ? null : planId;
+      if (next) {
+        window.setTimeout(() => {
+          document.getElementById(`favorite-route-${next}`)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 80);
+      }
+      return next;
+    });
+  }
+
+  function favoriteResult(plan: RecommendationPlan): RecommendationResponse {
+    return {
+      recordId: "local-favorites",
+      requestSummary: "本地收藏的路线",
+      aiNotice: "这些路线保存在当前浏览器里，不需要登录。地点信息仍建议出发前以地图和现场为准。",
+      plans: [plan],
+    };
   }
 
   return (
@@ -75,7 +88,7 @@ export default function FavoritesPage() {
         <>
           <div className="mt-5 grid gap-2.5">
             {plans.map((plan) => {
-              const active = selectedPlan?.id === plan.id;
+              const active = expandedPlanId === plan.id;
               return (
                 <article
                   key={plan.id}
@@ -83,7 +96,7 @@ export default function FavoritesPage() {
                     active ? "border-brand/24 bg-white/82" : "border-black/[0.06] bg-white/58"
                   }`}
                 >
-                  <button type="button" onClick={() => setSelectedPlanId(plan.id)} className="block w-full text-left">
+                  <button type="button" onClick={() => togglePlan(plan.id)} className="block w-full text-left">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex flex-wrap gap-1.5">
@@ -96,7 +109,7 @@ export default function FavoritesPage() {
                         <h2 className="mt-2 line-clamp-2 text-[18px] font-semibold leading-6 text-foreground">{plan.title}</h2>
                       </div>
                       <span className="shrink-0 rounded-full border border-white/70 bg-white/62 px-2.5 py-1 text-[11px] font-semibold text-brand">
-                        {active ? "查看中" : "查看"}
+                        {active ? "已展开" : "收藏"}
                       </span>
                     </div>
 
@@ -117,29 +130,29 @@ export default function FavoritesPage() {
                   </button>
 
                   <div className="mt-3 flex gap-2">
-                    <Button onClick={() => setSelectedPlanId(plan.id)} variant="secondary" className="min-h-[40px] flex-1 px-3 text-[13px]">
+                    <Button onClick={() => togglePlan(plan.id)} variant="secondary" className="min-h-[40px] flex-1 px-3 text-[13px]">
                       <Route size={15} />
-                      展开路线
+                      {active ? "收起路线" : "展开路线"}
                     </Button>
                     <Button onClick={() => removePlan(plan.id)} variant="ghost" className="min-h-[40px] px-3 text-[13px] text-warning">
                       <Trash2 size={15} />
                       取消
                     </Button>
                   </div>
+
+                  {active && (
+                    <div id={`favorite-route-${plan.id}`} className="favorite-route-expand mt-3">
+                      <GlassPanel className="mb-3 flex items-start gap-2 text-[12px] font-medium leading-5 text-brand">
+                        <MapPin className="mt-0.5 shrink-0" size={14} />
+                        当前展开的是本地收藏快照；取消收藏后会立即从列表移除。
+                      </GlassPanel>
+                      <PlanCard plan={plan} result={favoriteResult(plan)} removable onRemove={removePlan} />
+                    </div>
+                  )}
                 </article>
               );
             })}
           </div>
-
-          {selectedPlan && (
-            <div className="mt-4">
-              <GlassPanel className="mb-3 flex items-start gap-2 text-[12px] font-medium leading-5 text-brand">
-                <MapPin className="mt-0.5 shrink-0" size={14} />
-                当前展开的是本地收藏快照；取消收藏后会立即从列表移除。
-              </GlassPanel>
-              <PlanCard plan={selectedPlan} result={result} removable onRemove={removePlan} />
-            </div>
-          )}
         </>
       )}
     </MobileShell>

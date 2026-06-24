@@ -121,3 +121,28 @@
 - Command: POST /api/recommendations/generate through a temporary local backend process.
 - Cause: The backend process started in the normal sandbox could not open outbound network connections to 高德 Web 服务 and returned `Permission denied: no further information`.
 - Fix: Rerun the same verification command with `require_escalated` so the temporary backend can access the real map API. Do not treat this as a recommendation logic failure.
+
+## 2026-06-23 Zustand hook ReturnType became unknown in Next build
+- Command: `cd web && npm run build`
+- Cause: `ReturnType<typeof useJourneyStore>` on the Zustand bound hook was inferred as `unknown` during Next.js type checking.
+- Fix: Define a small local view type for the fields passed into helper functions instead of deriving the type from the hook object.
+
+## 2026-06-24 Sandbox rejected starting local frontend for screenshot
+- Command: `Start-Process -FilePath "npm.cmd" -ArgumentList @("run","dev",...)`
+- Cause: The managed sandbox approval review rejected starting a persistent local dev server because the current tool usage limit was reached.
+- Fix: Do not bypass the rejection with another startup workaround. Ask the user to start `cd web && npm run dev` locally, or retry browser screenshot verification when the service is already reachable.
+
+## 2026-06-24 React lint rejected assigning window.location.href
+- Command: `cd web && npm run lint`
+- Cause: `react-hooks/immutability` treats assigning to `window.location.href` inside a component handler as modifying an external value.
+- Fix: Use `window.open(deepLink, "_self")` for app deeplinks, then fall back with `window.open(webUrl, "_blank", "noopener,noreferrer")`.
+
+## 2026-06-24 Browser screenshot showed unstyled Next page
+- Command: in-app browser screenshot of `http://127.0.0.1:3000/`.
+- Cause: The already-running local Next service returned markup but CSS/client chunks were not applied reliably after code changes; route screenshots showed fallback/loading or default browser link styles.
+- Fix: Do not treat that screenshot as visual proof. Restart the frontend service, then recapture screenshots after confirming CSS classes apply and `document.documentElement.scrollWidth <= innerWidth`.
+
+## 2026-06-24 Browser verification tool unavailable for localhost
+- Command: attempted to discover an in-app browser/open-screenshot tool for `http://127.0.0.1:3000/`.
+- Cause: Tool discovery returned thread/automation tools instead of browser controls, while HTTP checks still returned 200 for the local Next pages.
+- Fix: Use `npm run lint`, `npm run build`, and `Invoke-WebRequest` route checks as baseline verification, then ask the user to visually verify in the already-open browser or retry browser tooling when available.

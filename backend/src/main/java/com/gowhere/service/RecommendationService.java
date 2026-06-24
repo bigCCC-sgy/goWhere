@@ -100,6 +100,21 @@ public class RecommendationService {
     if ("date".equals(request.scene()) && poi.tags().contains("适合初见")) {
       score -= 500;
     }
+    if ("coffee".equals(request.scene()) && (isCafe(poi) || isDessert(poi))) {
+      score -= 520;
+    }
+    if ("nightlife".equals(request.scene()) && poiText(poi).contains("酒")) {
+      score -= 420;
+    }
+    if ("shopping".equals(request.scene()) && (poi.category().contains("商场") || poi.category().contains("购物"))) {
+      score -= 420;
+    }
+    if ("work".equals(request.scene()) && (poi.tags().contains("安静") || poi.category().contains("图书馆") || poi.category().contains("书店"))) {
+      score -= 520;
+    }
+    if ("photo".equals(request.scene()) && (poi.tags().contains("出片") || poi.category().contains("景点") || poi.category().contains("展览"))) {
+      score -= 360;
+    }
     if (request.avoidTags() != null) {
       for (String avoidTag : request.avoidTags()) {
         if (poi.tags().contains(avoidTag) || poi.category().contains(avoidTag)) {

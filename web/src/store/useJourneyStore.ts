@@ -1,27 +1,34 @@
 "use client";
 
 import { create } from "zustand";
+import { locationToStorePatch } from "@/lib/location-options";
 import type { GenerateRequest, RecommendationResponse, SceneCode, UserLocation } from "@/lib/types";
 
-type JourneyStore = {
+export type BudgetLevel = "free" | "under100" | "balanced" | "comfort" | "premium" | "open";
+
+export type JourneyStore = {
   city: string;
   areaCode: string;
   userLocation: UserLocation;
   scene: SceneCode;
   query: string;
   budget: number;
+  budgetLevel?: BudgetLevel;
   companions: string;
+  distancePreference?: string;
+  cuisineTags: string[];
   moodTags: string[];
   avoidTags: string[];
   location?: GenerateRequest["location"];
   result?: RecommendationResponse;
-  setDraft: (patch: Partial<Omit<JourneyStore, "setDraft" | "setResult" | "toRequest">>) => void;
+  setDraft: (patch: Partial<Omit<JourneyStore, "setDraft" | "applyLocation" | "setResult" | "toRequest">>) => void;
+  applyLocation: (location: UserLocation & { areaCode?: string }) => void;
   setResult: (result: RecommendationResponse) => void;
   toRequest: () => GenerateRequest;
 };
 
 export const useJourneyStore = create<JourneyStore>((set, get) => ({
-  city: "南京",
+  city: "南京市",
   areaCode: "xinjiekou",
   userLocation: {
     label: "南京 · 新街口",
@@ -35,10 +42,14 @@ export const useJourneyStore = create<JourneyStore>((set, get) => ({
   scene: "date",
   query: "第一次约会，预算300，不想太吵，希望自然一点",
   budget: 300,
+  budgetLevel: "comfort",
   companions: "date",
+  distancePreference: "离我近",
+  cuisineTags: [],
   moodTags: ["安静", "自然"],
   avoidTags: ["太吵"],
   setDraft: (patch) => set(patch),
+  applyLocation: (location) => set(locationToStorePatch(location)),
   setResult: (result) => set({ result }),
   toRequest: () => {
     const state = get();

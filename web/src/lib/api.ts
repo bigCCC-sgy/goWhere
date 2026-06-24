@@ -1,4 +1,5 @@
 import { areas, scenes } from "./mock-data";
+import { localSuggestLocations } from "./location-options";
 import type { FeedbackType, GenerateRequest, RecommendationResponse, UserLocation } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
@@ -102,6 +103,44 @@ export async function resolveLocation(keyword: string): Promise<UserLocation> {
   });
 }
 
+export async function suggestLocations(keyword: string, city?: string): Promise<UserLocation[]> {
+  const query = keyword.trim();
+  if (!query) return [];
+
+  const local = localSuggestLocations(query, city);
+  try {
+    const params = new URLSearchParams({ keyword: query });
+    if (city?.trim()) {
+      params.set("city", city.trim());
+    }
+    const remote = await request<UserLocation[]>(`/api/location/suggest?${params.toString()}`, {
+      timeoutMs: 8000,
+    });
+    return mergeLocationSuggestions(remote, local).slice(0, 10);
+  } catch {
+    return local.slice(0, 10);
+  }
+}
+
+export async function reverseLocation(longitude: number, latitude: number): Promise<UserLocation> {
+  try {
+    const params = new URLSearchParams({
+      longitude: String(longitude),
+      latitude: String(latitude),
+    });
+    return await request<UserLocation>(`/api/location/reverse?${params.toString()}`, {
+      timeoutMs: 8000,
+    });
+  } catch {
+    return {
+      label: "当前位置",
+      longitude,
+      latitude,
+      source: "geolocation",
+    };
+  }
+}
+
 export async function generateRecommendations(input: GenerateRequest): Promise<RecommendationResponse> {
   return withRealSource(
     await request<RecommendationResponse>("/api/recommendations/generate", {
@@ -146,4 +185,21 @@ export async function getShare(code: string): Promise<RecommendationResponse | n
   } catch {
     return null;
   }
+}
+
+function mergeLocationSuggestions(remote: UserLocation[], local: UserLocation[]) {
+  const seen = new Set<string>();
+  return [...local, ...remote].filter((item) => {
+    const key = [
+      item.city || "",
+      item.district || "",
+      item.label || "",
+      item.address || "",
+      item.longitude || "",
+      item.latitude || "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
