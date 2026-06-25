@@ -38,10 +38,11 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" }) {
   const variants = {
     primary:
-      "bg-brand text-white shadow-[0_10px_22px_rgba(217,74,74,0.16)] hover:bg-warm",
+      "bg-[linear-gradient(180deg,#e65b61,#d94a4a)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.32),0_10px_22px_rgba(217,74,74,0.18)] hover:brightness-[1.02]",
     secondary:
-      "border border-black/[0.07] bg-white/76 text-foreground shadow-[0_6px_16px_rgba(30,22,14,0.045)] hover:bg-white",
-    ghost: "bg-transparent text-muted hover:bg-black/[0.04] hover:text-foreground",
+      "border border-black/[0.07] bg-white/78 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)] hover:bg-white",
+    ghost:
+      "border border-transparent bg-white/0 text-muted hover:border-black/[0.05] hover:bg-white/58 hover:text-foreground",
   };
 
   return (

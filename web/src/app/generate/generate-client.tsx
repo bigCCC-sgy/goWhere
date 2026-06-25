@@ -105,8 +105,8 @@ function OptionButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] font-semibold transition active:scale-[0.98] ${
-        active ? "border-brand/20 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/66 text-muted"
+      className={`ios-pressable inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] ${
+        active ? "border-brand/20 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/72 text-muted"
       }`}
     >
       {active && <Check size={14} strokeWidth={2.2} />}
@@ -296,8 +296,8 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
                 type="button"
                 onClick={() => switchMode(itemMode)}
                 aria-pressed={active}
-                className={`h-10 rounded-full text-[14px] font-semibold transition active:scale-[0.98] ${
-                  active ? "bg-foreground text-white shadow-[0_6px_14px_rgba(30,22,14,0.12)]" : "text-muted"
+                className={`ios-pressable h-10 rounded-full text-[14px] font-semibold ${
+                  active ? "bg-[linear-gradient(180deg,#e65b61,#d94a4a)] text-white shadow-[0_8px_18px_rgba(217,74,74,0.16)]" : "text-muted"
                 }`}
               >
                 {label}
@@ -312,7 +312,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
           <PanelLabel title="位置" hint={store.userLocation.source === "geolocation" ? "来自定位" : "可修改"} />
           <Link
             href={locationHref}
-            className="mt-3 flex items-center justify-between gap-3 rounded-[16px] border border-black/[0.06] bg-[#faf8f5] px-3.5 py-3 transition active:scale-[0.99]"
+            className="ios-pressable mt-3 flex items-center justify-between gap-3 rounded-[16px] border border-black/[0.06] bg-[#faf8f5] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
           >
             <span className="min-w-0">
               <span className="flex items-center gap-2 text-[14px] font-semibold text-foreground">
@@ -350,7 +350,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
               <button
                 type="button"
                 onClick={() => applyParsedIntent()}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-black/[0.07] bg-white/72 px-4 text-[13px] font-semibold text-foreground transition active:scale-[0.98]"
+                className="ios-pressable inline-flex min-h-10 items-center gap-1.5 rounded-full border border-black/[0.07] bg-white/78 px-4 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)]"
               >
                 <Sparkles size={15} />
                 理解一下
@@ -388,8 +388,8 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
                   setShowMoreScenes(category !== "常用");
                 }}
                 aria-pressed={sceneCategory === category}
-                className={`ios-pressable inline-flex h-9 shrink-0 items-center rounded-full border px-3 text-[13px] font-semibold ${
-                  sceneCategory === category ? "border-brand/20 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/66 text-muted"
+                className={`ios-pressable inline-flex h-9 shrink-0 items-center rounded-full border px-3 text-[13px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] ${
+                  sceneCategory === category ? "border-brand/20 bg-brand-soft text-brand" : "border-black/[0.07] bg-white/72 text-muted"
                 }`}
               >
                 {category}
@@ -405,8 +405,8 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
                   type="button"
                   onClick={() => store.setDraft({ scene: scene.value })}
                   aria-pressed={active}
-                  className={`min-h-[72px] rounded-[18px] border p-3 text-left transition active:scale-[0.98] ${
-                    active ? "border-brand/22 bg-white text-foreground" : "border-black/[0.06] bg-white/58 text-muted"
+                  className={`ios-pressable min-h-[72px] rounded-[18px] border p-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] ${
+                    active ? "border-brand/22 bg-brand-soft/70 text-foreground" : "border-black/[0.06] bg-white/62 text-muted"
                   }`}
                 >
                   <span className="flex items-center justify-between text-[15px] font-[700]">
@@ -422,7 +422,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
             <button
               type="button"
               onClick={() => setShowMoreScenes((value) => !value)}
-              className="ios-pressable mt-3 min-h-10 w-full rounded-full border border-black/[0.07] bg-white/68 px-4 text-[13px] font-semibold text-foreground"
+              className="ios-pressable mt-3 min-h-10 w-full rounded-full border border-black/[0.07] bg-white/78 px-4 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_rgba(30,22,14,0.05)]"
             >
               {showMoreScenes ? "收起常用场景" : "展开更多常用场景"}
             </button>

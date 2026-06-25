@@ -32,7 +32,7 @@ export function MobileShell({
 }) {
   return (
     <PageShell className={`bg-[#f8f6f3] ${className}`}>
-      <div className="relative mx-auto min-h-screen w-full max-w-[430px] overflow-hidden px-4 pb-[132px] pt-4 sm:my-6 sm:min-h-[calc(100vh-48px)] sm:rounded-[32px] sm:border sm:border-black/[0.06] sm:bg-[#faf8f5]/80">
+      <div className="relative mx-auto box-border min-h-screen w-[calc(100%-32px)] max-w-[398px] overflow-hidden pb-[132px] pt-4 sm:my-6 sm:min-h-[calc(100vh-48px)] sm:w-full sm:max-w-[430px] sm:rounded-[32px] sm:border sm:border-black/[0.06] sm:bg-[#faf8f5]/80 sm:px-4">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,#faf8f5_0%,#f7f3ef_100%)]" />
         <div className="relative z-10">{children}</div>
       </div>
@@ -51,9 +51,9 @@ export function TopBackLink({
   right?: ReactNode;
 }) {
   return (
-    <header className="flex items-center justify-between gap-3">
+    <header className="flex min-w-0 items-center justify-between gap-3">
       <Link
-        className="inline-flex min-h-[38px] items-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-3.5 text-[13px] font-semibold text-foreground transition active:scale-[0.98]"
+        className="ios-pressable inline-flex min-h-[38px] items-center gap-2 rounded-full border border-black/[0.07] bg-white/78 px-3.5 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)]"
         href={href}
       >
         <ArrowLeft size={16} strokeWidth={1.9} />

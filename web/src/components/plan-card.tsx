@@ -22,6 +22,10 @@ function reviewKeyword(poi: Poi) {
   return `${poi.name} ${poi.city || ""} 测评`.trim();
 }
 
+function validPhotoUrls(poi: Poi) {
+  return Array.from(new Set((poi.photoUrls ?? []).filter((url) => /^https?:\/\//i.test(url.trim())))).slice(0, 5);
+}
+
 export function PlanCard({
   plan,
   result,
@@ -108,7 +112,7 @@ export function PlanCard({
   const firstStop = plan.stops[0]?.poi;
 
   return (
-    <section className="rounded-[20px] border border-black/[0.07] bg-card p-3 shadow-[0_10px_26px_rgba(30,22,14,0.065)]">
+    <section className="max-w-full overflow-hidden rounded-[20px] border border-black/[0.07] bg-card p-3 shadow-[0_10px_26px_rgba(30,22,14,0.065)]">
       <div className="p-1">
         <div className="mb-3 flex flex-wrap gap-1.5">
           {plan.tags.map((tag) => (
@@ -156,7 +160,7 @@ export function PlanCard({
                     </p>
                   </div>
                   <a
-                    className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-black/[0.07] bg-white/72 px-2.5 text-[12px] font-semibold text-brand"
+                    className="ios-pressable inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-black/[0.07] bg-white/78 px-2.5 text-[12px] font-semibold text-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
                     href={amapUrl(stop.poi)}
                     target="_blank"
                     rel="noreferrer"
@@ -190,7 +194,7 @@ export function PlanCard({
                   <button
                     type="button"
                     onClick={() => setDetailStop(stop)}
-                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/76 px-2 text-[12px] font-semibold text-foreground"
+                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/78 px-2 text-[12px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_rgba(30,22,14,0.045)]"
                   >
                     <ExternalLink size={13} />
                     详情
@@ -199,7 +203,7 @@ export function PlanCard({
                     href={amapUrl(stop.poi)}
                     target="_blank"
                     rel="noreferrer"
-                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/76 px-2 text-[12px] font-semibold text-foreground"
+                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/78 px-2 text-[12px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_rgba(30,22,14,0.045)]"
                   >
                     <Navigation size={13} />
                     导航
@@ -219,8 +223,8 @@ export function PlanCard({
             type="button"
             onClick={() => sendFeedback(type)}
             aria-pressed={feedback === type}
-            className={`rounded-full px-3 py-2 text-[12px] font-semibold transition ${
-              feedback === type ? "bg-brand text-white" : "bg-white/70 text-muted hover:text-foreground"
+            className={`ios-pressable rounded-full border px-3 py-2 text-[12px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] ${
+              feedback === type ? "border-brand/20 bg-brand-soft text-brand" : "border-black/[0.05] bg-white/72 text-muted hover:text-foreground"
             }`}
           >
             {type === "like" && "喜欢"}
@@ -283,30 +287,65 @@ export function PlanCard({
   );
 }
 
-function PoiPhoto({ poi }: { poi: Poi }) {
-  const [failed, setFailed] = useState(false);
-  const photo = poi.photoUrls?.find((url) => /^https?:\/\//i.test(url));
-  return (
-    <div className="relative h-[168px] overflow-hidden rounded-[18px]">
-      {photo && !failed ? (
-        <img
-          src={photo}
-          alt={`${poi.name} 实地图片`}
-          className="h-full w-full object-cover"
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.92),transparent_28%),linear-gradient(135deg,#fff6ed,#eadfce)]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/70 bg-white/48 text-[#a58a73] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-md">
+function PoiPhotoGallery({ poi }: { poi: Poi }) {
+  const [failedUrls, setFailedUrls] = useState<string[]>([]);
+  const photos = validPhotoUrls(poi).filter((url) => !failedUrls.includes(url));
+  const hasSparsePhotos = photos.length > 0 && photos.length < 3;
+
+  function markFailed(url: string) {
+    setFailedUrls((current) => (current.includes(url) ? current : [...current, url]));
+  }
+
+  if (!photos.length) {
+    return (
+      <div className="overflow-hidden rounded-[20px] border border-white/70 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.92),transparent_28%),linear-gradient(135deg,#fff6ed,#eadfce)]">
+        <div className="flex h-[176px] flex-col items-center justify-center px-5 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/70 bg-white/50 text-[#a58a73] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-md">
             <ImageIcon size={22} strokeWidth={1.8} />
           </div>
+          <p className="mt-3 text-[13px] font-semibold text-[#6f6257]">暂无可展示的真实实拍图</p>
+          <a
+            href={amapUrl(poi)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-flex min-h-8 items-center rounded-full border border-black/[0.06] bg-white/70 px-3 text-[12px] font-semibold text-brand"
+          >
+            查看地图商家页
+          </a>
         </div>
-      )}
-      <div className="absolute left-3 top-3 rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-[#6f6257] backdrop-blur-md">
-        实地图片
       </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex snap-x gap-2 overflow-x-auto rounded-[20px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {photos.map((photo, index) => (
+          <div
+            key={photo}
+            className={`relative shrink-0 snap-start overflow-hidden rounded-[18px] ${
+              photos.length >= 3 ? "h-[154px] w-[78%]" : "h-[174px] w-full"
+            }`}
+          >
+            <img
+              src={photo}
+              alt={`${poi.name} 实拍图 ${index + 1}`}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={() => markFailed(photo)}
+            />
+            <div className="absolute left-3 top-3 rounded-full border border-white/70 bg-white/72 px-2.5 py-1 text-[11px] font-semibold text-[#6f6257] backdrop-blur-md">
+              实拍 {index + 1}/{photos.length}
+            </div>
+          </div>
+        ))}
+      </div>
+      {hasSparsePhotos && (
+        <p className="mt-2 rounded-[14px] bg-white/62 px-3 py-2 text-[12px] font-medium leading-5 text-muted">
+          实拍图片较少，环境和营业状态请以地图商家页为准。
+        </p>
+      )}
     </div>
   );
 }
@@ -322,9 +361,14 @@ function PoiDetailDrawer({
 }) {
   const poi = stop.poi;
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/24 px-3 pb-3 backdrop-blur-[2px]" role="dialog" aria-modal="true">
-      <div className="max-h-[86vh] w-full max-w-[390px] overflow-y-auto rounded-[26px] border border-white/72 bg-[#faf8f5] p-3 shadow-[0_18px_44px_rgba(30,22,14,0.22)]">
-        <div className="mb-3 flex items-center justify-between px-1">
+    <div
+      className="fixed inset-0 z-[120] flex items-end justify-center bg-black/24 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-[72px] backdrop-blur-[2px]"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="flex max-h-[calc(100dvh-72px)] w-full max-w-[390px] flex-col overflow-hidden rounded-[26px] border border-white/72 bg-[#faf8f5] shadow-[0_18px_44px_rgba(30,22,14,0.22)]">
+        <div className="shrink-0 px-3 pb-2 pt-3">
+        <div className="flex items-center justify-between px-1">
           <div className="text-[13px] font-semibold text-muted">地点详情</div>
           <button
             type="button"
@@ -335,8 +379,10 @@ function PoiDetailDrawer({
             <X size={17} />
           </button>
         </div>
-        <PoiPhoto poi={poi} />
-        <div className="px-1 pb-1 pt-4">
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        <PoiPhotoGallery poi={poi} />
+        <div className="px-1 pb-2 pt-4">
           <h3 className="text-[22px] font-[750] leading-[1.15] text-foreground">{poi.name}</h3>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Pill className="text-[11px]">{poi.category}</Pill>
@@ -375,30 +421,33 @@ function PoiDetailDrawer({
               </span>
             ))}
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <a
-              href={amapUrl(poi)}
-              target="_blank"
-              rel="noreferrer"
-              className="ios-pressable inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-foreground px-4 text-[13px] font-semibold text-white"
-            >
-              <Navigation size={15} />
-              导航
-            </a>
-            <button
-              type="button"
-              onClick={() => onReview(poi)}
-              className="ios-pressable inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-brand/12 bg-brand-soft px-4 text-[13px] font-semibold text-brand"
-            >
-              <Search size={15} />
-              看测评
-            </button>
-          </div>
           {poi.detailUrl && (
-            <a href={poi.detailUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-[12px] font-semibold text-brand">
+            <a href={poi.detailUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex text-[12px] font-semibold text-brand">
               查看商家页面
             </a>
           )}
+        </div>
+        </div>
+        <div className="sticky bottom-0 shrink-0 border-t border-black/[0.06] bg-[#faf8f5]/92 px-3 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+          <div className="grid grid-cols-2 gap-2">
+          <a
+            href={amapUrl(poi)}
+            target="_blank"
+            rel="noreferrer"
+            className="ios-pressable inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-[linear-gradient(180deg,#2b2926,#171717)] px-4 text-[13px] font-semibold text-white shadow-[0_10px_20px_rgba(30,22,14,0.16)]"
+          >
+            <Navigation size={15} />
+            导航
+          </a>
+          <button
+            type="button"
+            onClick={() => onReview(poi)}
+            className="ios-pressable inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-brand/12 bg-brand-soft px-4 text-[13px] font-semibold text-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.76)]"
+          >
+            <Search size={15} />
+            看测评
+          </button>
+          </div>
         </div>
       </div>
     </div>

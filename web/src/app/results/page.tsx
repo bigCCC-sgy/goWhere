@@ -45,7 +45,7 @@ export default function ResultsPage() {
             onClick={regenerate}
             disabled={loading}
             aria-label="重新生成一批路线"
-            className="inline-flex min-h-[38px] items-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-3.5 text-[13px] font-semibold text-foreground transition active:scale-[0.98] disabled:opacity-60"
+            className="ios-pressable inline-flex min-h-[38px] items-center gap-2 rounded-full border border-black/[0.07] bg-white/78 px-3.5 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)] disabled:opacity-60"
           >
             <RefreshCw size={15} strokeWidth={1.9} />
             换一批

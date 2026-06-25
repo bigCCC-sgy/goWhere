@@ -13,6 +13,14 @@ function formatDistance(meters: number) {
   return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
 }
 
+function routeSummary(plan: RecommendationPlan) {
+  const first = plan.stops[0]?.poi.name;
+  const last = plan.stops.at(-1)?.poi.name;
+  if (!first) return "路线地点待确认";
+  if (!last || first === last) return first;
+  return `${first} → ${last}${plan.stops.length > 2 ? ` · 共 ${plan.stops.length} 站` : ""}`;
+}
+
 export default function FavoritesPage() {
   const [plans, setPlans] = useState<RecommendationPlan[]>(() => getFavoritePlans());
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
@@ -77,7 +85,7 @@ export default function FavoritesPage() {
           <p className="mt-2 max-w-[260px] text-[13px] leading-6 text-muted">
             生成推荐后，点路线卡片里的“本地收藏”，它就会出现在这里。
           </p>
-          <Link href="/generate" className="mt-6 w-full">
+          <Link href="/generate" className="mt-6 block w-full">
             <Button className="min-h-[50px] w-full">
               <Compass size={17} />
               去生成路线
@@ -92,7 +100,7 @@ export default function FavoritesPage() {
               return (
                 <article
                   key={plan.id}
-                  className={`rounded-[20px] border p-3.5 shadow-[0_8px_22px_rgba(30,22,14,0.05)] transition ${
+                  className={`max-w-full overflow-hidden rounded-[20px] border p-3.5 shadow-[0_8px_22px_rgba(30,22,14,0.05)] transition ${
                     active ? "border-brand/24 bg-white/82" : "border-black/[0.06] bg-white/58"
                   }`}
                 >
@@ -113,35 +121,31 @@ export default function FavoritesPage() {
                       </span>
                     </div>
 
-                    <div className="mt-3 flex items-center gap-1.5 overflow-hidden text-[12px] font-medium text-muted">
-                      {plan.stops.slice(0, 3).map((stop, index) => (
-                        <span key={stop.poi.id} className="contents">
-                          <span className="min-w-0 truncate rounded-full bg-white/62 px-2 py-1">{stop.poi.name}</span>
-                          {index < Math.min(plan.stops.length, 3) - 1 && <span className="text-brand">→</span>}
-                        </span>
-                      ))}
+                    <div className="mt-3 flex min-w-0 items-start gap-2 rounded-[16px] border border-black/[0.04] bg-white/56 px-3 py-2 text-[12px] font-semibold leading-5 text-muted">
+                      <Route className="mt-0.5 shrink-0 text-brand" size={14} />
+                      <span className="line-clamp-2 min-w-0">{routeSummary(plan)}</span>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-3 gap-2 text-[12px] font-semibold text-foreground">
-                      <span className="rounded-full bg-white/62 px-2 py-1.5">¥{plan.budgetPerPerson}</span>
-                      <span className="rounded-full bg-white/62 px-2 py-1.5">{formatDistance(plan.totalDistanceMeters)}</span>
-                      <span className="rounded-full bg-white/62 px-2 py-1.5">{Math.round(plan.totalDurationMinutes / 60)}h</span>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[12px] font-semibold text-foreground">
+                      <span className="truncate rounded-full bg-white/62 px-2 py-1.5">¥{plan.budgetPerPerson}</span>
+                      <span className="truncate rounded-full bg-white/62 px-2 py-1.5">{formatDistance(plan.totalDistanceMeters)}</span>
+                      <span className="truncate rounded-full bg-white/62 px-2 py-1.5">{Math.round(plan.totalDurationMinutes / 60)}h</span>
                     </div>
                   </button>
 
-                  <div className="mt-3 flex gap-2">
-                    <Button onClick={() => togglePlan(plan.id)} variant="secondary" className="min-h-[40px] flex-1 px-3 text-[13px]">
+                  <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                    <Button onClick={() => togglePlan(plan.id)} variant={active ? "primary" : "secondary"} className="min-h-[42px] min-w-0 px-3 text-[13px]">
                       <Route size={15} />
                       {active ? "收起路线" : "展开路线"}
                     </Button>
-                    <Button onClick={() => removePlan(plan.id)} variant="ghost" className="min-h-[40px] px-3 text-[13px] text-warning">
+                    <Button onClick={() => removePlan(plan.id)} variant="secondary" className="min-h-[42px] px-3 text-[13px] text-warning">
                       <Trash2 size={15} />
                       取消
                     </Button>
                   </div>
 
                   {active && (
-                    <div id={`favorite-route-${plan.id}`} className="favorite-route-expand mt-3">
+                    <div id={`favorite-route-${plan.id}`} className="favorite-route-expand mt-3 max-w-full overflow-hidden pb-24">
                       <GlassPanel className="mb-3 flex items-start gap-2 text-[12px] font-medium leading-5 text-brand">
                         <MapPin className="mt-0.5 shrink-0" size={14} />
                         当前展开的是本地收藏快照；取消收藏后会立即从列表移除。

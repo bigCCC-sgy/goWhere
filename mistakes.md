@@ -146,3 +146,14 @@
 - Command: attempted to discover an in-app browser/open-screenshot tool for `http://127.0.0.1:3000/`.
 - Cause: Tool discovery returned thread/automation tools instead of browser controls, while HTTP checks still returned 200 for the local Next pages.
 - Fix: Use `npm run lint`, `npm run build`, and `Invoke-WebRequest` route checks as baseline verification, then ask the user to visually verify in the already-open browser or retry browser tooling when available.
+
+## 2026-06-25 Production route generation returned 502 on Vercel
+- Command: POST `https://www.gowhere.bond/api/recommendations/generate`.
+- Cause: The Vercel rewrite surfaced the upstream failure as 502, while direct nginx returned `503 {"message":"AI 服务调用失败：Connection reset"}` from the backend. The backend had real POIs, but AI text generation was a hard failure when the provider connection was reset.
+- Fix: Keep route generation usable by falling back to local route copy from `MockAiProvider` after AI provider failures, while still using the real candidate POIs returned by AMap.
+
+## 2026-06-25 PowerShell variable PID is read-only
+- Command: foreach ($pid in $portPids) { Stop-Process -Id $pid ... }
+- Cause: PowerShell variable names are case-insensitive, so $pid conflicts with the built-in read-only $PID variable.
+- Fix: Use a different variable name such as $processId when iterating process ids.
+
