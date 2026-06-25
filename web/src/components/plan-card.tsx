@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Check, Clock3, Copy, ExternalLink, Heart, ImageIcon, MapPin, Navigation, Phone, Route, Search, Star, ThumbsUp, WalletCards, X, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { createShare, submitFeedback } from "@/lib/api";
 import { isFavoritePlan, removeFavoritePlan, saveFavoritePlan } from "@/lib/favorites";
 import type { FeedbackType, PlanStop, Poi, RecommendationPlan, RecommendationResponse } from "@/lib/types";
@@ -360,13 +361,41 @@ function PoiDetailDrawer({
   onReview: (poi: Poi) => void;
 }) {
   const poi = stop.poi;
-  return (
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-end justify-center bg-black/24 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-[72px] backdrop-blur-[2px]"
+      className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/24 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-[72px] backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
+      onClick={onClose}
     >
-      <div className="flex max-h-[calc(100dvh-72px)] w-full max-w-[390px] flex-col overflow-hidden rounded-[26px] border border-white/72 bg-[#faf8f5] shadow-[0_18px_44px_rgba(30,22,14,0.22)]">
+      <div
+        className="flex max-h-[calc(100dvh-72px)] w-[min(390px,calc(100vw-24px))] flex-col overflow-hidden rounded-[26px] border border-white/72 bg-[#faf8f5] shadow-[0_18px_44px_rgba(30,22,14,0.22)]"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="shrink-0 px-3 pb-2 pt-3">
         <div className="flex items-center justify-between px-1">
           <div className="text-[13px] font-semibold text-muted">地点详情</div>
@@ -428,7 +457,7 @@ function PoiDetailDrawer({
           )}
         </div>
         </div>
-        <div className="sticky bottom-0 shrink-0 border-t border-black/[0.06] bg-[#faf8f5]/92 px-3 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+        <div className="shrink-0 border-t border-black/[0.06] bg-[#faf8f5]/92 px-3 pb-[calc(14px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
           <div className="grid grid-cols-2 gap-2">
           <a
             href={amapUrl(poi)}
@@ -450,7 +479,8 @@ function PoiDetailDrawer({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

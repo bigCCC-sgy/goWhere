@@ -2,8 +2,13 @@
 
 import { Bookmark, Compass, Heart, MapPin, Route, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { getFavoritePlans, removeFavoritePlan } from "@/lib/favorites";
+import { useState, useSyncExternalStore } from "react";
+import {
+  getFavoritePlansSnapshot,
+  getServerFavoritePlansSnapshot,
+  removeFavoritePlan,
+  subscribeFavoritePlans,
+} from "@/lib/favorites";
 import type { RecommendationPlan, RecommendationResponse } from "@/lib/types";
 import { Button, Pill } from "@/components/ui";
 import { GlassPanel, MobileShell, SectionTitle, TopBackLink } from "@/components/mobile-shell";
@@ -22,13 +27,15 @@ function routeSummary(plan: RecommendationPlan) {
 }
 
 export default function FavoritesPage() {
-  const [plans, setPlans] = useState<RecommendationPlan[]>(() => getFavoritePlans());
+  const plans = useSyncExternalStore(
+    subscribeFavoritePlans,
+    getFavoritePlansSnapshot,
+    getServerFavoritePlansSnapshot,
+  );
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
   function removePlan(planId: string) {
     removeFavoritePlan(planId);
-    const next = plans.filter((plan) => plan.id !== planId);
-    setPlans(next);
     setExpandedPlanId((expanded) => (expanded === planId ? null : expanded));
   }
 
