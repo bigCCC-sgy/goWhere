@@ -99,14 +99,12 @@ export function PlanCard({
   function openReview(poi: Poi) {
     const keyword = encodeURIComponent(reviewKeyword(poi));
     const appUrl = `xhsdiscover://search/result?keyword=${keyword}`;
-    const webUrl = `https://www.xiaohongshu.com/search_result?keyword=${keyword}`;
+  
     try {
       window.open(appUrl, "_self");
-      window.setTimeout(() => window.open(webUrl, "_blank", "noopener,noreferrer"), 800);
       setActionMessage("正在尝试打开小红书测评，若未拉起会打开网页搜索。");
     } catch {
-      window.open(webUrl, "_blank", "noopener,noreferrer");
-      setActionMessage("已打开小红书网页搜索。");
+      setActionMessage("暂时无法唤起小红书，请确认设备已安装小红书客户端。");
     }
   }
 
@@ -200,15 +198,14 @@ export function PlanCard({
                     <ExternalLink size={13} />
                     详情
                   </button>
-                  <a
-                    href={amapUrl(stop.poi)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/78 px-2 text-[12px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_rgba(30,22,14,0.045)]"
+                  <button
+                    type="button"
+                    onClick={() => openReview(stop.poi)}
+                    className="ios-pressable inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-brand/12 bg-brand-soft px-2 text-[12px] font-semibold text-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_rgba(30,22,14,0.045)]"
                   >
-                    <Navigation size={13} />
-                    导航
-                  </a>
+                    <Search size={13} />
+                    看测评
+                  </button>
                 </div>
               </div>
             </div>
