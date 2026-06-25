@@ -20,7 +20,7 @@ function amapUrl(poi: Poi) {
 }
 
 function reviewKeyword(poi: Poi) {
-  return `${poi.name} ${poi.city || ""} 测评`.trim();
+  return `${poi.name} 测评`.trim();
 }
 
 function validPhotoUrls(poi: Poi) {
