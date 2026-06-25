@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, ChevronDown, Compass, LocateFixed, Loader2, MapPin, Navigation, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Cloud, CloudRain, CloudSnow, CloudSun, LocateFixed, Loader2, MapPin, Navigation, Sparkles, Sun, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,11 +13,21 @@ import { MobileShell } from "@/components/mobile-shell";
 
 const sceneCards = sceneOptions.filter((scene) => scene.home).slice(0, 8);
 
+function getWeatherIcon(weatherText: string): LucideIcon {
+  if (weatherText.includes("雪")) return CloudSnow;
+  if (weatherText.includes("雨")) return CloudRain;
+  if (weatherText.includes("晴")) return Sun;
+  if (weatherText.includes("多云")) return CloudSun;
+  if (weatherText.includes("阴")) return Cloud;
+  return Cloud;
+}
+
 export default function HomePage() {
   const router = useRouter();
   const store = useJourneyStore();
   const locationLabel = formatLocationLabel(store.userLocation);
   const weatherText = mockWeatherForCity(store.userLocation.city || store.city);
+  const WeatherIcon = getWeatherIcon(weatherText);
   const [locating, setLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState("");
 
@@ -70,18 +80,20 @@ export default function HomePage() {
     <MobileShell activeDock="home">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <div className="text-[18px] font-[700] tracking-normal text-foreground">此刻去哪</div>
-            <BrandGlyph />
-          </div>
+          <div className="text-[18px] font-[700] tracking-normal text-foreground">此刻去哪</div>
           <Link
             href="/location?returnTo=%2F"
-            className="ios-pressable mt-1 flex max-w-[285px] items-center gap-1.5 rounded-full py-1 pr-2 text-[13px] font-medium text-muted"
+            className="ios-pressable mt-1 flex max-w-[285px] min-w-0 items-center gap-1.5 rounded-full py-1 pr-2 text-[13px] font-medium text-muted"
             aria-label="选择位置"
           >
-            <MapPin size={13} strokeWidth={1.8} />
-            <span className="truncate">{locationLabel} · {weatherText}</span>
-            <ChevronDown size={13} strokeWidth={1.8} />
+            <MapPin className="shrink-0" size={13} strokeWidth={1.8} />
+            <span className="flex min-w-0 items-center gap-1.5 truncate">
+              <span className="min-w-0 truncate">{locationLabel}</span>
+              <span className="shrink-0 text-muted/70">·</span>
+              <WeatherIcon className="shrink-0 text-muted" size={13} strokeWidth={1.8} />
+              <span className="shrink-0 whitespace-nowrap">{weatherText}</span>
+            </span>
+            <ChevronDown className="shrink-0" size={13} strokeWidth={1.8} />
           </Link>
         </div>
         <button
@@ -153,17 +165,6 @@ export default function HomePage() {
         <Link href="/legal">协议与说明</Link>
       </footer>
     </MobileShell>
-  );
-}
-
-function BrandGlyph() {
-  return (
-    <span className="brand-glyph relative inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center overflow-hidden rounded-[12px]" aria-hidden="true">
-      <span className="absolute inset-[3px] rounded-[10px] bg-white/52" />
-      <Compass className="relative z-10 text-[#34414a]" size={20} strokeWidth={1.85} />
-      <Sparkles className="absolute right-[5px] top-[5px] z-10 text-[#d9745a]" size={9} strokeWidth={2.2} />
-      <span className="absolute bottom-[7px] left-[9px] h-1.5 w-1.5 rounded-full bg-[#c9b6a0]/70" />
-    </span>
   );
 }
 
