@@ -19,7 +19,7 @@ export function Card({ children, className = "", ...props }: HTMLAttributes<HTML
 export function Pill({ children, active = false, className = "" }: { children: ReactNode; active?: boolean; className?: string }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+      className={`inline-flex min-w-0 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${
         active
           ? "border border-brand/15 bg-brand text-white"
           : "border border-black/[0.07] bg-white/72 text-muted"

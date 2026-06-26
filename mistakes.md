@@ -157,3 +157,8 @@
 - Cause: PowerShell variable names are case-insensitive, so $pid conflicts with the built-in read-only $PID variable.
 - Fix: Use a different variable name such as $processId when iterating process ids.
 
+## 2026-06-25 POI detail drawer covered by bottom dock
+- Problem: 地点详情页底部“导航 / 看测评”按钮被 `MobileShell` 外层 `fixed z-50` 底部 Tab Bar 覆盖，按钮视觉露出不稳定且可能无法点击。
+- Cause: `PoiDetailDrawer` 渲染在 `PlanCard` 内部，仍处于 `MobileShell` 页面内容层的堆叠上下文里；仅调高抽屉内部 `z-index` 不能越过外层固定 BottomDock。
+- Fix: 将 `PoiDetailDrawer` 通过 `createPortal` 挂载到 `document.body`，弹层根节点使用全局 `fixed inset-0 z-[1000]` 遮罩；详情卡片内部用 `flex flex-col overflow-hidden`，内容区 `min-h-0 flex-1 overflow-y-auto`，底部操作栏 `shrink-0` 并使用 safe-area padding，确保按钮始终完整可见且可点击。
+

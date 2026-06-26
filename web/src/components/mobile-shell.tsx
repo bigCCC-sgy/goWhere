@@ -53,13 +53,13 @@ export function TopBackLink({
   return (
     <header className="flex min-w-0 items-center justify-between gap-3">
       <Link
-        className="ios-pressable inline-flex min-h-[38px] items-center gap-2 rounded-full border border-black/[0.07] bg-white/78 px-3.5 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)]"
+        className="ios-pressable inline-flex min-h-[38px] shrink-0 items-center gap-2 rounded-full border border-black/[0.07] bg-white/78 px-3.5 text-[13px] font-semibold text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_8px_18px_rgba(30,22,14,0.055)]"
         href={href}
       >
         <ArrowLeft size={16} strokeWidth={1.9} />
         {label}
       </Link>
-      {right}
+      {right && <div className="flex min-w-0 flex-1 justify-end">{right}</div>}
     </header>
   );
 }

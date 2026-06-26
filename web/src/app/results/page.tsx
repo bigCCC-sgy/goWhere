@@ -58,7 +58,7 @@ export default function ResultsPage() {
           {sourceLabel}
         </Pill>
         <SectionTitle
-          title="今晚可以这样走"
+          title="可以这样走"
           description={result?.requestSummary ?? "正在整理你的城市路线"}
         />
       </div>
@@ -67,7 +67,7 @@ export default function ResultsPage() {
         <GlassPanel className="mt-8 flex min-h-[220px] flex-col items-center justify-center text-center">
           <Loader2 className="animate-spin text-brand" size={28} />
           <h2 className="mt-4 text-[20px] font-semibold text-foreground">正在生成路线</h2>
-          <p className="mt-2 max-w-[260px] text-[13px] leading-6 text-muted">会先确认地点，再整理成适合今晚的走法。</p>
+          <p className="mt-2 max-w-[260px] text-[13px] leading-6 text-muted">会先确认地点，再整理成适合这次的路线。</p>
         </GlassPanel>
       )}
 
@@ -75,7 +75,7 @@ export default function ResultsPage() {
         <GlassPanel className="mt-8 text-center">
           <h2 className="text-[20px] font-semibold text-foreground">还没有生成行程</h2>
           <p className="mx-auto mt-2 max-w-[260px] text-[13px] leading-6 text-muted">
-            从首页说说今晚的状态，或去灵感页补充偏好。
+            从首页说说你的状态，或去灵感页补充偏好。
           </p>
           {error && <p className="mt-3 text-[13px] font-medium text-warning">{error}</p>}
           <Link href="/generate" className="mt-5 block">

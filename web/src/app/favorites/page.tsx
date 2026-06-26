@@ -80,7 +80,7 @@ export default function FavoritesPage() {
         className="mt-8"
         eyebrow="本地收藏"
         title="把喜欢的路线先放这里"
-        description="收藏只保存在当前浏览器。适合把今晚想走的路线先存起来，临出门前再做一次确认。"
+        description="收藏只保存在当前浏览器。适合把想走的路线先存起来，临出门前再做一次确认。"
       />
 
       {plans.length === 0 ? (

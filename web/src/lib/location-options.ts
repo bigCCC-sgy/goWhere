@@ -515,6 +515,12 @@ export function formatLocationLabel(location: UserLocation) {
   return parts.length ? Array.from(new Set(parts)).join(" · ") : location.label;
 }
 
+export function formatCompactLocationLabel(location: UserLocation) {
+  const name = shortName(location);
+  const parts = [location.district, name].filter(Boolean);
+  return parts.length ? Array.from(new Set(parts)).join(" · ") : location.city || location.label;
+}
+
 export function locationToStorePatch(location: UserLocation & { areaCode?: string }): LocationPatch {
   const nextLocation: UserLocation = {
     ...location,

@@ -20,10 +20,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HttpAiProvider implements AiProvider {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpAiProvider.class);
+
   private final GoWhereProperties properties;
   private final MockAiProvider fallback;
   private final ObjectMapper objectMapper;
@@ -61,18 +65,21 @@ public class HttpAiProvider implements AiProvider {
     try {
       List<RecommendationPlan> plans = callAi(request, candidates);
       if (plans.isEmpty()) {
-        if (mockEnabled()) {
-          return fallback.generatePlans(request, candidates);
-        }
-        throw new IllegalStateException("AI 返回内容未通过 POI 校验。");
+        return fallbackAfterAiFailure(request, candidates, "AI 返回内容未通过 POI 校验。", null);
       }
       return plans;
     } catch (Exception exception) {
-      if (mockEnabled()) {
-        return fallback.generatePlans(request, candidates);
+      if (exception instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
       }
-      throw new IllegalStateException("AI 服务调用失败：" + exception.getMessage(), exception);
+      return fallbackAfterAiFailure(request, candidates, "AI 服务调用失败：" + exception.getMessage(), exception);
     }
+  }
+
+  private List<RecommendationPlan> fallbackAfterAiFailure(
+      GenerateRecommendationRequest request, List<Poi> candidates, String reason, Exception exception) {
+    LOGGER.warn("{} Falling back to local route copy based on {} candidate POIs.", reason, candidates.size(), exception);
+    return fallback.generatePlans(request, candidates);
   }
 
   private boolean mockEnabled() {

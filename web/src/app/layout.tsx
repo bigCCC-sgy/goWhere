@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "此刻去哪",
   title: "此刻去哪",
-  description: "把心情、预算和天气交给我，今晚就有一条刚刚好的路线。",
+  description: "把心情、预算和天气交给我，生成一条刚刚好的路线。",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [

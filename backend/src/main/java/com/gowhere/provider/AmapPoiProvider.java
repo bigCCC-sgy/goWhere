@@ -187,7 +187,14 @@ public class AmapPoiProvider {
             || keyword.contains("菜")
             || keyword.contains("日料")
             || keyword.contains("西餐")
-            || keyword.contains("火锅"));
+            || keyword.contains("火锅")
+            || keyword.contains("烧烤")
+            || keyword.contains("小吃")
+            || keyword.contains("轻食")
+            || keyword.contains("简餐")
+            || keyword.contains("海鲜")
+            || keyword.contains("粉面")
+            || keyword.contains("麻辣烫"));
   }
 
   private List<Poi> searchAmapByKeyword(
@@ -365,7 +372,7 @@ public class AmapPoiProvider {
       return List.of("酒店", "住宿", "宾馆", "民宿", "快捷酒店", "星级酒店");
     }
     if (wantsDining(request)) {
-      return List.of("餐厅", "西餐", "日料");
+      return diningIntentKeywords(request.scene());
     }
     String query = normalizedQuery(request);
     if (query.contains("咖啡")) {
@@ -377,26 +384,53 @@ public class AmapPoiProvider {
     return List.of();
   }
 
+  private List<String> diningIntentKeywords(String scene) {
+    return switch (scene) {
+      case "hotpot_bbq" -> List.of("火锅", "烧烤", "串串", "餐厅");
+      case "local_snack" -> List.of("小吃", "地方小吃", "夜市", "餐饮");
+      case "light_meal" -> List.of("轻食", "简餐", "沙拉", "餐厅");
+      case "date_dining" -> List.of("餐厅", "西餐", "日料", "约会餐厅");
+      default -> List.of("餐厅", "南京菜", "淮扬菜", "西餐", "日料");
+    };
+  }
+
   private List<String> sceneKeywords(String scene) {
     return switch (scene) {
-      case "eat" -> List.of("餐厅", "火锅", "地方菜", "小吃", "商场");
+      case "eat" -> List.of("餐厅", "南京菜", "淮扬菜", "江浙菜", "小吃");
+      case "hotpot_bbq" -> List.of("火锅", "烧烤", "串串", "烤肉");
+      case "afternoon_tea" -> List.of("下午茶", "茶饮", "甜品", "咖啡");
+      case "local_snack" -> List.of("地方小吃", "小吃", "夜市", "面馆");
+      case "light_meal" -> List.of("轻食", "简餐", "沙拉", "餐厅");
+      case "date_dining" -> List.of("餐厅", "西餐", "日料", "咖啡");
       case "date" -> List.of("餐厅", "咖啡", "甜品", "公园");
       case "weekend" -> List.of("展览", "书店", "街区", "公园", "商场");
       case "alone" -> List.of("书店", "咖啡", "图书馆", "公园");
       case "rain" -> List.of("商场", "书店", "展览", "咖啡");
-      case "friends" -> List.of("餐厅", "酒吧", "小吃", "商场");
+      case "friends" -> List.of("餐厅", "KTV", "台球", "棋牌室", "商场");
       case "coffee" -> List.of("咖啡", "甜品", "茶饮", "面包店");
-      case "culture" -> List.of("展览", "美术馆", "博物馆", "文化空间");
+      case "culture" -> List.of("展览", "美术馆", "博物馆", "剧院", "演出");
+      case "movie" -> List.of("电影院", "影院", "影城");
       case "show" -> List.of("电影院", "剧院", "演出", "livehouse");
       case "walk" -> List.of("公园", "街区", "景点", "步行街");
       case "nightlife" -> List.of("酒吧", "小酒馆", "夜市", "livehouse");
+      case "ktv" -> List.of("KTV", "量贩式KTV", "音乐娱乐");
+      case "internet_cafe" -> List.of("网吧", "电竞馆", "电竞酒店", "网咖");
+      case "billiards_boardgames" -> List.of("台球", "棋牌室", "桌游");
+      case "arcade" -> List.of("游乐场", "电玩城", "亲子乐园");
       case "family" -> List.of("亲子", "公园", "商场", "儿童乐园");
       case "pet" -> List.of("宠物友好", "公园", "宠物店", "咖啡");
       case "work" -> List.of("图书馆", "咖啡", "自习室", "书店");
       case "sport" -> List.of("健身", "运动", "公园", "瑜伽");
-      case "shopping" -> List.of("商场", "购物中心", "步行街", "餐厅");
+      case "shopping" -> List.of("商场", "购物中心", "步行街");
       case "photo" -> List.of("景点", "街区", "展览", "公园");
       case "halfday" -> List.of("景点", "街区", "咖啡", "展览");
+      case "massage" -> List.of("按摩", "足疗", "养生");
+      case "bath_spa" -> List.of("洗浴", "汗蒸", "温泉");
+      case "quiet_sit" -> List.of("咖啡", "书店", "茶馆", "图书馆");
+      case "park_walk" -> List.of("公园", "绿地", "景区", "步道");
+      case "bookstore_coffee" -> List.of("书店", "咖啡", "图书馆");
+      case "tonight" -> List.of("餐厅", "咖啡", "商场", "电影院", "KTV");
+      case "after_work" -> List.of("餐厅", "按摩", "足疗", "咖啡", "商场");
       case "lodging" -> List.of("酒店", "住宿", "宾馆", "民宿", "快捷酒店", "星级酒店");
       default -> List.of("餐厅", "咖啡", "小吃", "商场");
     };
@@ -444,7 +478,8 @@ public class AmapPoiProvider {
 
   private boolean wantsDining(GenerateRecommendationRequest request) {
     String query = normalizedQuery(request);
-    return query.contains("晚餐")
+    return isDiningScene(request.scene())
+        || query.contains("晚餐")
         || query.contains("氛围晚餐")
         || query.contains("吃饭")
         || query.contains("餐厅")
@@ -452,12 +487,38 @@ public class AmapPoiProvider {
         || query.contains("约饭")
         || query.contains("吃点")
         || query.contains("下班饭")
-        || query.contains("先吃");
+        || query.contains("先吃")
+        || query.contains("南京菜")
+        || query.contains("淮扬菜")
+        || query.contains("川湘菜")
+        || query.contains("江浙菜")
+        || query.contains("粤菜")
+        || query.contains("日料")
+        || query.contains("韩餐")
+        || query.contains("西餐")
+        || query.contains("东南亚菜")
+        || query.contains("海鲜")
+        || query.contains("烤鱼")
+        || query.contains("小龙虾")
+        || query.contains("串串")
+        || query.contains("冒菜")
+        || query.contains("麻辣烫")
+        || query.contains("粉面")
+        || query.contains("素食");
+  }
+
+  private boolean isDiningScene(String scene) {
+    return "eat".equals(scene)
+        || "hotpot_bbq".equals(scene)
+        || "local_snack".equals(scene)
+        || "light_meal".equals(scene)
+        || "date_dining".equals(scene);
   }
 
   private boolean wantsLodging(GenerateRecommendationRequest request) {
     String query = normalizedQuery(request);
-    return query.contains("酒店")
+    return "lodging".equals(request.scene())
+        || query.contains("酒店")
         || query.contains("住宿")
         || query.contains("宾馆")
         || query.contains("民宿")
@@ -624,10 +685,12 @@ public class AmapPoiProvider {
     if (photos.isArray()) {
       for (JsonNode photo : photos) {
         String url = text(photo, "url");
-        if (!url.isBlank()) {
+        if (!url.isBlank()
+            && (url.startsWith("http://") || url.startsWith("https://"))
+            && !urls.contains(url)) {
           urls.add(url);
         }
-        if (urls.size() >= 3) {
+        if (urls.size() >= 5) {
           break;
         }
       }

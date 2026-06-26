@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, ChevronDown, Cloud, CloudRain, CloudSnow, CloudSun, LocateFixed, Loader2, MapPin, Navigation, Sparkles, Sun, type LucideIcon } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Cloud, CloudRain, CloudSnow, CloudSun, LocateFixed, Loader2, MapPin, Navigation, Sparkles, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,13 +13,15 @@ import { MobileShell } from "@/components/mobile-shell";
 
 const sceneCards = sceneOptions.filter((scene) => scene.home).slice(0, 8);
 
-function getWeatherIcon(weatherText: string): LucideIcon {
-  if (weatherText.includes("雪")) return CloudSnow;
-  if (weatherText.includes("雨")) return CloudRain;
-  if (weatherText.includes("晴")) return Sun;
-  if (weatherText.includes("多云")) return CloudSun;
-  if (weatherText.includes("阴")) return Cloud;
-  return Cloud;
+function WeatherIconView({ weatherText }: { weatherText: string }) {
+  const className = "shrink-0 text-muted";
+  const props = { className, size: 13, strokeWidth: 1.8 };
+  if (weatherText.includes("雪")) return <CloudSnow {...props} />;
+  if (weatherText.includes("雨")) return <CloudRain {...props} />;
+  if (weatherText.includes("晴")) return <Sun {...props} />;
+  if (weatherText.includes("多云")) return <CloudSun {...props} />;
+  if (weatherText.includes("阴")) return <Cloud {...props} />;
+  return <Cloud {...props} />;
 }
 
 export default function HomePage() {
@@ -27,7 +29,6 @@ export default function HomePage() {
   const store = useJourneyStore();
   const locationLabel = formatLocationLabel(store.userLocation);
   const weatherText = mockWeatherForCity(store.userLocation.city || store.city);
-  const WeatherIcon = getWeatherIcon(weatherText);
   const [locating, setLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState("");
 
@@ -83,14 +84,14 @@ export default function HomePage() {
           <div className="text-[18px] font-[700] tracking-normal text-foreground">此刻去哪</div>
           <Link
             href="/location?returnTo=%2F"
-            className="ios-pressable mt-1 flex max-w-[285px] min-w-0 items-center gap-1.5 rounded-full py-1 pr-2 text-[13px] font-medium text-muted"
+            className="ios-pressable mt-1 flex max-w-[min(285px,calc(100vw-88px))] min-w-0 items-center gap-1.5 overflow-hidden rounded-full py-1 pr-2 text-[13px] font-medium text-muted"
             aria-label="选择位置"
           >
             <MapPin className="shrink-0" size={13} strokeWidth={1.8} />
-            <span className="flex min-w-0 items-center gap-1.5 truncate">
+            <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
               <span className="min-w-0 truncate">{locationLabel}</span>
               <span className="shrink-0 text-muted/70">·</span>
-              <WeatherIcon className="shrink-0 text-muted" size={13} strokeWidth={1.8} />
+              <WeatherIconView weatherText={weatherText} />
               <span className="shrink-0 whitespace-nowrap">{weatherText}</span>
             </span>
             <ChevronDown className="shrink-0" size={13} strokeWidth={1.8} />
@@ -118,7 +119,7 @@ export default function HomePage() {
       <section className="mt-4 grid gap-2">
         <HomeActionButton
           title="帮我选"
-          subtitle="点几下，今晚就有安排"
+          subtitle="点几下，就有安排"
           onClick={() => enterChoose()}
           primary
         />
@@ -131,7 +132,7 @@ export default function HomePage() {
 
       <section className="mt-6">
         <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-[18px] font-[700] text-foreground">先选一个今晚的方向</h2>
+          <h2 className="text-[18px] font-[700] text-foreground">先选一个方向</h2>
           <span className="text-[12px] font-medium text-muted">可到下一步细调</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -180,7 +181,7 @@ function AnimatedRouteHero() {
       <button
         type="button"
         onClick={replayHero}
-        aria-label="播放今晚灵感生成动效"
+        aria-label="播放灵感生成动效"
         className="animated-route-hero ios-pressable relative mt-5 block h-[238px] w-full overflow-hidden rounded-[26px] border border-white/80 text-left shadow-[0_20px_44px_rgba(68,48,30,0.12)]"
       >
         <div className="hero-glass-sweep pointer-events-none absolute inset-0" />
@@ -255,7 +256,7 @@ function AnimatedRouteHero() {
 
         <div className="absolute bottom-0 left-0 right-0 bg-[linear-gradient(180deg,transparent,rgba(255,252,247,0.64)_20%,rgba(255,252,247,0.9)_100%)] px-4 pb-4 pt-8 text-[#171717]">
           <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7f7164]">
-            <Sparkles size={13} /> 今晚，从一个选择开始
+            <Sparkles size={13} /> 从一个选择开始
           </p>
           <h1 className="mt-1 whitespace-nowrap text-[21px] font-[750] leading-[1.15] tracking-normal">
             你不用想太多，我来把路线排好
@@ -324,7 +325,7 @@ function AnimatedRouteHero() {
 
       <div className="absolute bottom-0 left-0 right-0 bg-[linear-gradient(180deg,transparent,rgba(255,252,247,0.64)_24%,rgba(255,252,247,0.84)_100%)] px-4 pb-4 pt-7 text-[#171717]">
         <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7f7164]">
-          <Sparkles size={13} /> 今晚，从一个选择开始
+          <Sparkles size={13} /> 从一个选择开始
         </p>
         <h1 className="mt-1 whitespace-nowrap text-[22px] font-[750] leading-[1.15] tracking-normal">
           你不用想太多，我来把路线排好

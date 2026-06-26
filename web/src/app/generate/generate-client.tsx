@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { useMemo, useRef, useState } from "react";
 import { generateRecommendations, getApiErrorMessage } from "@/lib/api";
 import { parseIntentFromText, type ParsedIntent } from "@/lib/intent";
-import { formatLocationLabel } from "@/lib/location-options";
+import { formatCompactLocationLabel, formatLocationLabel } from "@/lib/location-options";
 import {
   avoidOptions,
   budgetOptions,
@@ -65,7 +65,7 @@ function buildChooseQuery({
   const sceneLabel = labelOf(sceneOptions, scene);
   const companionLabel = labelOf(companionOptions, companions);
   const budgetLabel = labelOf(budgetOptions, budgetLevel);
-  const parts = [`想找适合${companionLabel || "今晚"}的${sceneLabel}安排`];
+  const parts = [`想找适合${companionLabel || "这次"}的${sceneLabel}安排`];
 
   const cuisine = cuisineTags.filter((tag) => tag !== "不挑");
   if (scene === "eat" && cuisine.length) parts.push(`偏好${listText(cuisine)}`);
@@ -137,6 +137,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
   const [error, setError] = useState("");
   const locationHref = `/location?returnTo=${encodeURIComponent(`/generate?mode=${mode}`)}`;
   const locationLabel = formatLocationLabel(store.userLocation);
+  const compactLocationLabel = formatCompactLocationLabel(store.userLocation);
   const visibleScenes = useMemo(() => {
     const categoryScenes = sceneOptions.filter((scene) => scene.category === sceneCategory);
     if (showMoreScenes || sceneCategory !== "常用") return categoryScenes;
@@ -167,12 +168,11 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
   const missing = useMemo(() => {
     const items = [];
     if (!store.scene) items.push("场景");
-    if (!store.companions) items.push("同行人");
     if (!store.budgetLevel) items.push("预算");
     if (!store.distancePreference) items.push("距离偏好");
     if (!store.moodTags.length) items.push("氛围");
     return items;
-  }, [store.budgetLevel, store.companions, store.distancePreference, store.moodTags.length, store.scene]);
+  }, [store.budgetLevel, store.distancePreference, store.moodTags.length, store.scene]);
 
   function switchMode(nextMode: Mode) {
     setError("");
@@ -214,7 +214,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
 
   async function submit() {
     if (mode === "idea" && !ideaText.trim()) {
-      setError("先说说今晚的想法，我再帮你整理成偏好。");
+      setError("先说说你的想法，我再帮你整理成偏好。");
       ideaRef.current?.focus();
       return;
     }
@@ -266,11 +266,11 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
         href="/"
         label="返回首页"
         right={
-          <Link href={locationHref} aria-label="修改位置">
-            <Pill className="min-h-[40px] max-w-[190px] bg-white/62 text-foreground">
-              <MapPin size={14} strokeWidth={1.8} />
-              <span className="truncate">{locationLabel}</span>
-              <ChevronRight size={13} strokeWidth={1.8} />
+          <Link href={locationHref} aria-label="修改位置" className="flex min-w-0 justify-end">
+            <Pill className="min-h-[40px] max-w-[min(220px,calc(100vw-180px))] overflow-hidden bg-white/62 text-foreground">
+              <MapPin className="shrink-0" size={14} strokeWidth={1.8} />
+              <span className="min-w-0 truncate">{locationLabel}</span>
+              <ChevronRight className="shrink-0" size={13} strokeWidth={1.8} />
             </Pill>
           </Link>
         }
@@ -278,9 +278,9 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
 
       <SectionTitle
         className="mt-7"
-        eyebrow="今晚偏好"
+        eyebrow="偏好选择"
         title={mode === "choose" ? "点几下，我来安排" : "先说想法，再确认"}
-        description={mode === "choose" ? "不用写长句，选到差不多就可以生成。" : "我会先理解你的表达，再让你补齐关键偏好。"}
+        description={mode === "choose" ? "不用写长句，选到差不多就可以生成。" : "说一句，自动整理；你确认后再生成。"}
       />
 
       <div className="mt-5 rounded-full border border-black/[0.06] bg-white/68 p-1">
@@ -314,13 +314,13 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
             href={locationHref}
             className="ios-pressable mt-3 flex items-center justify-between gap-3 rounded-[16px] border border-black/[0.06] bg-[#faf8f5] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
           >
-            <span className="min-w-0">
-              <span className="flex items-center gap-2 text-[14px] font-semibold text-foreground">
-                <MapPin size={15} strokeWidth={1.8} />
+            <span className="min-w-0 flex-1 overflow-hidden">
+              <span className="flex min-w-0 items-center gap-2 text-[14px] font-semibold text-foreground">
+                <MapPin className="shrink-0" size={15} strokeWidth={1.8} />
                 <span className="min-w-0 truncate">{locationLabel}</span>
               </span>
               {store.userLocation.address && (
-                <span className="mt-1 block truncate text-[12px] font-medium text-muted">{store.userLocation.address}</span>
+                <span className="mt-1 block min-w-0 truncate text-[12px] font-medium text-muted">{store.userLocation.address}</span>
               )}
             </span>
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/72 px-3 py-1.5 text-[12px] font-semibold text-foreground">
@@ -344,7 +344,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
               maxLength={200}
               aria-invalid={Boolean(error && !ideaText.trim())}
               className="mt-3 min-h-[106px] w-full resize-none rounded-[16px] border border-black/[0.07] bg-[#faf8f5] px-4 py-3 text-[15px] font-medium leading-6 text-foreground outline-none placeholder:text-muted/70"
-              placeholder="比如：今晚想和朋友吃火锅，不想排队太久，最好离我近一点"
+              placeholder="比如：想和朋友吃火锅，不想排队太久，最好离我近一点"
             />
             <div className="mt-3 flex items-center justify-between gap-2">
               <button
@@ -377,7 +377,7 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
         )}
 
         <GlassPanel className="rounded-[20px] p-3.5">
-          <PanelLabel title="场景" hint={mode === "choose" ? "先定今晚方向" : "可修正识别结果"} />
+          <PanelLabel title="场景" hint={mode === "choose" ? "先定方向" : "可修正识别结果"} />
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {sceneCategories.map((category) => (
               <button
@@ -429,18 +429,6 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
           )}
         </GlassPanel>
 
-        <OptionPanel title="同行人">
-          {companionOptions.map((item) => (
-            <OptionButton
-              key={item.value}
-              active={store.companions === item.value}
-              onClick={() => store.setDraft({ companions: item.value })}
-            >
-              {item.label}
-            </OptionButton>
-          ))}
-        </OptionPanel>
-
         <OptionPanel title="预算" hint={`人均约 ¥${budgetValue(store.budgetLevel || "balanced")}`}>
           {budgetOptions.map((item) => (
             <OptionButton
@@ -490,6 +478,18 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
             </OptionButton>
           ))}
         </OptionPanel>
+
+        <OptionPanel title="同行人">
+          {companionOptions.map((item) => (
+            <OptionButton
+              key={item.value}
+              active={store.companions === item.value}
+              onClick={() => store.setDraft({ companions: item.value })}
+            >
+              {item.label}
+            </OptionButton>
+          ))}
+        </OptionPanel>
       </div>
 
       <div className="fixed inset-x-0 bottom-[82px] z-40 mx-auto w-[min(398px,calc(100%_-_24px))]">
@@ -500,11 +500,11 @@ export default function GenerateClient({ initialMode = "choose" }: { initialMode
             </p>
           )}
           <Button onClick={submit} disabled={loading} className="min-h-[54px] w-full justify-between px-5 text-[17px]">
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex min-w-0 flex-1 items-center gap-2">
               {loading && <Loader2 className="animate-spin" size={19} />}
-              {loading ? "正在生成路线" : mode === "choose" ? "按这些偏好生成" : "确认并生成"}
+              <span className="truncate">{loading ? "正在生成路线" : mode === "choose" ? "按这些偏好生成" : "确认并生成"}</span>
             </span>
-            <span className="max-w-[120px] truncate text-sm text-white/78">{locationLabel}</span>
+            <span className="hidden min-w-0 max-w-[96px] shrink truncate text-sm text-white/78 min-[380px]:block">{compactLocationLabel}</span>
           </Button>
         </div>
       </div>

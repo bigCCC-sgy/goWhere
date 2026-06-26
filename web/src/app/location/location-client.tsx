@@ -180,12 +180,12 @@ export default function LocationClient({ initialReturnTo = "/" }: { initialRetur
       <div className="mt-5 grid gap-3 pb-10">
         <GlassPanel className="rounded-[20px] p-3.5">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[15px] font-semibold text-foreground">
-                <MapPin size={16} strokeWidth={1.8} />
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="flex min-w-0 items-center gap-2 text-[15px] font-semibold text-foreground">
+                <MapPin className="shrink-0" size={16} strokeWidth={1.8} />
                 <span className="truncate">{currentLabel}</span>
               </div>
-              <p className="mt-1 text-[12px] font-medium leading-5 text-muted">
+              <p className="mt-1 truncate text-[12px] font-medium leading-5 text-muted">
                 {store.userLocation.source === "geolocation" ? "来自定位" : "当前已选择"}
                 {store.userLocation.address ? ` · ${store.userLocation.address}` : ""}
               </p>

@@ -170,9 +170,9 @@ export function PlanCard({
                 </div>
 
                 <p className="mt-2 text-[13px] leading-[21px] text-foreground">{stop.reason}</p>
-                <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-5 text-muted">
+                <p className="mt-2 flex min-w-0 items-start gap-1.5 text-[12px] leading-5 text-muted">
                   <MapPin className="mt-0.5 shrink-0 text-muted" size={13} />
-                  {stop.poi.address}
+                  <span className="min-w-0 line-clamp-2">{stop.poi.address}</span>
                 </p>
 
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -428,9 +428,9 @@ function PoiDetailDrawer({
             </p>
           )}
           <div className="mt-3 space-y-2 text-[12px] font-medium leading-5 text-muted">
-            <p className="flex gap-2">
+            <p className="flex min-w-0 gap-2">
               <MapPin className="mt-0.5 shrink-0" size={14} />
-              <span>{poi.address || "地址以地图为准"}</span>
+              <span className="min-w-0 line-clamp-2">{poi.address || "地址以地图为准"}</span>
             </p>
             {poi.phone && (
               <p className="flex gap-2">
